@@ -1,6 +1,7 @@
 package pe.edu.upc.tampubackend.DTOs;
 
 import lombok.Data;
+import pe.edu.upc.tampubackend.Entities.BiometricData;
 import pe.edu.upc.tampubackend.Entities.Users;
 
 import java.time.LocalDateTime;
@@ -15,3 +16,5 @@ public class BiometricDataDTO {
     private double stressLevel;     // Nivel de estrés (escala del smartwatch)
     private double sleepScore;
 }
+
+
