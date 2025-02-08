@@ -12,4 +12,6 @@ public class BiometricDataDTO {
     private double bloodPressure;
     private double spo2;
     private LocalDateTime date;
+    private double stressLevel;     // Nivel de estrés (escala del smartwatch)
+    private double sleepScore;
 }
