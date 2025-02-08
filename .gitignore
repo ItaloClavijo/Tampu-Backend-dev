@@ -3,6 +3,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+src/main/resources/tampu-notifications-firebase-adminsdk-fbsvc-7a0a412ea6.json
 
 ### STS ###
 .apt_generated

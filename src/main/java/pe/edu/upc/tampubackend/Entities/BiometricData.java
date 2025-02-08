@@ -23,5 +23,7 @@ public class BiometricData {
     private double heartRate;
     private double bloodPressure;
     private double spo2;
+    private double stressLevel;     // Nivel de estrés (escala del smartwatch)
+    private double sleepScore;
     private LocalDateTime date;
 }
