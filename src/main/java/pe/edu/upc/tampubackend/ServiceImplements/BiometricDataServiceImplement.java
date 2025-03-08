@@ -16,18 +16,19 @@ public class BiometricDataServiceImplement implements BiometricDataService {
     private IBiometricDataRepository registroBiometricoRepository;
     private IUserRepository usuarioRepository;
     @Override
-    public BiometricData guardarRegistro(BiometricData dto) {
+    public BiometricData guardarRegistro(BiometricData biodata) {
 
-        Users usuario = usuarioRepository.findById(dto.getUser().getId())
+        Users usuario = usuarioRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
 
         BiometricData biometricData = new BiometricData();
+
         biometricData.setUser(usuario);
-        biometricData.setHeartRate(dto.getHeartRate());
-        biometricData.setBloodPressure(dto.getBloodPressure());
-        biometricData.setSpo2(dto.getSpo2());
-        biometricData.setDate(dto.getDate());
+        biometricData.setHeartRate(biodata.getHeartRate());
+        biometricData.setBloodPressure(biodata.getBloodPressure());
+        biometricData.setSpo2(biodata.getSpo2());
+        biometricData.setDate(biodata.getDate());
 
         BiometricData guardado = registroBiometricoRepository.save(biometricData);
 
