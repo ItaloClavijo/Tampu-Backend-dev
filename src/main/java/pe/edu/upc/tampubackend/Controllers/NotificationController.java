@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.RestController;
 import pe.edu.upc.tampubackend.Entities.Notification;
 import pe.edu.upc.tampubackend.Services.INotificationService;
 
-@RestController
-@RequestMapping("/noti")
-public class NotificationController {
+//@RestController
+//@RequestMapping("/noti")
+//public class NotificationController {
 
-    @Autowired
-    INotificationService notificationService;
+  //  @Autowired
+   // INotificationService notificationService;
 
-    @PostMapping
-    public String sendNotiByToken(@RequestBody Notification notification){
-        return notificationService.sendNotiByToken(notification);
-    }
+    //@PostMapping
+    //public String sendNotiByToken(@RequestBody Notification notification){
+      //  return notificationService.sendNotiByToken(notification);
+    //}
 
-}
+//}

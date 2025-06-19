@@ -7,6 +7,6 @@ import pe.edu.upc.tampubackend.Entities.BiometricData;
 import java.util.List;
 
 @Repository
-public interface IBiometricDataRepository extends JpaRepository<BiometricData,Long> {
-   List<BiometricData> findByUserIdOrderByDateDesc (Long user_id);
+public interface IBiometricDataRepository extends JpaRepository<BiometricData, Long> {
+    List<BiometricData> findByUserIdOrderByTimestampDesc(Long user_id);
 }

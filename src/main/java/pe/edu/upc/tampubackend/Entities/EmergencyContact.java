@@ -12,6 +12,7 @@ public class EmergencyContact {
     private String telefono;
     private String email;
     private String tokenFCM;  // Para enviar notificaciones al contacto
+    private String relacion;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -20,13 +21,22 @@ public class EmergencyContact {
     public EmergencyContact() {
     }
 
-    public EmergencyContact(Long id, String nombre, String telefono, String email, String tokenFCM, Users user) {
+    public EmergencyContact(Long id, String nombre, String telefono, String email, String tokenFCM, Users user, String relacion) {
         this.id = id;
         this.nombre = nombre;
         this.telefono = telefono;
         this.email = email;
         this.tokenFCM = tokenFCM;
         this.user = user;
+        this.relacion = relacion;
+    }
+
+    public String getRelacion() {
+        return relacion;
+    }
+
+    public void setRelacion(String relacion) {
+        this.relacion = relacion;
     }
 
     public Long getId() {

@@ -1,15 +1,8 @@
 package pe.edu.upc.tampubackend.Services;
 
-import pe.edu.upc.tampubackend.Entities.BiometricData;
-
-import java.util.List;
+import pe.edu.upc.tampubackend.DTOs.BiometricDataDTO;
 
 public interface BiometricDataService {
-
-    public BiometricData guardarRegistro(BiometricData dto);
-
-    public boolean esAtaqueAnsiedad(BiometricData registro);
-
-    public List<BiometricData> obtenerRegistros(Long usuarioId);
-
+    // Métodos abstractos que implementará la clase BiometricDataServiceImplement
+    public void saveWithApiResponse(BiometricDataDTO data, String apiResponse);
 }
