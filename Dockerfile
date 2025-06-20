@@ -1,10 +1,10 @@
-# Usa la imagen base con OpenJDK 17
-FROM openjdk:17
+# Usa una imagen base con OpenJDK 17 de tipo Debian
+FROM openjdk:17-buster
 
 # MAINTAINER (opcional)
 MAINTAINER ItaloClavijo
 
-# Instalar curl para descargar el archivo .jar desde Google Drive
+# Instalar curl utilizando apt-get
 RUN apt-get update && apt-get install -y curl
 
 # Descargar el archivo .jar desde Google Drive
