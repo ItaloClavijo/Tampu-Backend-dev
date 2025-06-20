@@ -5,7 +5,7 @@ FROM openjdk:17-buster
 RUN apt-get update && apt-get install -y wget
 
 # Descarga el JAR desde Google Drive con manejo de confirmación
-RUN FILE_ID=1WKZq6AONJo_ZgvjxX9b1xZtUKODHiIgk && \
+RUN FILE_ID=17tBi_ZnvOzZ6Dr3k3p1yGmOS2-hl7dT8 && \
     CONFIRM=$(wget --quiet --save-cookies /tmp/cookies.txt \
         --keep-session-cookies --no-check-certificate \
         "https://docs.google.com/uc?export=download&id=${FILE_ID}" -O- | \
@@ -17,4 +17,3 @@ RUN FILE_ID=1WKZq6AONJo_ZgvjxX9b1xZtUKODHiIgk && \
 
 # Comando por defecto al iniciar el contenedor
 CMD ["java", "-jar", "/Tampu-Backend.jar"]
-
