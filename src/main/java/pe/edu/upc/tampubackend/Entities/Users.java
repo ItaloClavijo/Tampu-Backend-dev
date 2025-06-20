@@ -1,11 +1,8 @@
 package pe.edu.upc.tampubackend.Entities;
 
 import jakarta.persistence.*;
-
-
 import java.io.Serializable;
 import java.util.List;
-
 
 @Entity
 @Table(name = "users")
@@ -17,15 +14,24 @@ public class Users implements Serializable {
 
     @Column(length = 30, unique = true)
     private String username;
+
     @Column(length = 200)
     private String password;
+
     private Boolean enabled;
+
     private String email;
+
     private String phoneNumber;
 
+    // Relación con la entidad Role (un usuario puede tener múltiples roles)
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private List<Role> roles;
+
+    // Versión para concurrencia optimista
+    @Version
+    private Long version;
 
     public Users() {
     }
@@ -40,6 +46,7 @@ public class Users implements Serializable {
         this.roles = roles;
     }
 
+    // Getters y setters
     public Long getId() {
         return id;
     }
@@ -94,5 +101,13 @@ public class Users implements Serializable {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

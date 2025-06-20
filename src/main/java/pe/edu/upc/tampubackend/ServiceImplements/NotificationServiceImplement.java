@@ -11,12 +11,14 @@ import pe.edu.upc.tampubackend.Services.INotificationService;
 @Service
 public class NotificationServiceImplement implements INotificationService {
 
-    @Autowired
+    @Autowired(required = false)
     private FirebaseMessaging firebaseMessaging;
-
 
     @Override
     public String sendNotiByToken(Notification notification) {
+        if (firebaseMessaging == null) {
+            return "FirebaseMessaging no está configurado en este entorno.";
+        }
 
         com.google.firebase.messaging.Notification notificationFirebase = com.google.firebase.messaging.Notification
                 .builder()
@@ -24,6 +26,7 @@ public class NotificationServiceImplement implements INotificationService {
                 .setBody(notification.getBody())
                 .setImage(notification.getImage())
                 .build();
+
         Message message = Message
                 .builder()
                 .setToken(notification.getRecipientToken())
@@ -33,10 +36,10 @@ public class NotificationServiceImplement implements INotificationService {
 
         try {
             firebaseMessaging.send(message);
-            return "La noti se envio con exito";
-        }catch (FirebaseException e){
+            return "La notificación se envió con éxito.";
+        } catch (FirebaseException e) {
             e.printStackTrace();
-            return "Ya fue esa noti :(";
+            return "Error al enviar la notificación: " + e.getMessage();
         }
     }
 }

@@ -1,53 +1,52 @@
 package pe.edu.upc.tampubackend.ServiceImplements;
 
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pe.edu.upc.tampubackend.Entities.BiometricData;
 import pe.edu.upc.tampubackend.Entities.Users;
 import pe.edu.upc.tampubackend.Repositories.IBiometricDataRepository;
 import pe.edu.upc.tampubackend.Repositories.IUserRepository;
+import pe.edu.upc.tampubackend.DTOs.BiometricDataDTO;
 import pe.edu.upc.tampubackend.Services.BiometricDataService;
-
-import java.util.List;
 
 @Service
 public class BiometricDataServiceImplement implements BiometricDataService {
 
-    private IBiometricDataRepository registroBiometricoRepository;
-    private IUserRepository usuarioRepository;
+    @Autowired
+    private IBiometricDataRepository biometricDataRepository;
+
+    @Autowired
+    private IUserRepository usersRepository;
+
     @Override
-    public BiometricData guardarRegistro(BiometricData biodata) {
+    @Transactional
+    public void saveWithApiResponse(BiometricDataDTO data, String apiResponse) {
+        // Buscar el usuario por ID
+        Users user = usersRepository.findById(data.getUser_id())
+                .orElseGet(() -> {
+                    // Si el usuario no existe, se crea un nuevo usuario
+                    Users newUser = new Users();
+                    newUser.setId(data.getUser_id());
+                    newUser.setUsername("Nuevo Usuario"); // Puedes poner datos por defecto o pedirlos
+                    newUser.setEmail("email@domain.com"); // Puedes poner un email por defecto o asignarlo de alguna otra forma
 
-        Users usuario = usuarioRepository.findById(1L)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                    return usersRepository.save(newUser);  // Guardamos al nuevo usuario
+                });
 
-
+        // Crear la entidad BiometricData
         BiometricData biometricData = new BiometricData();
+        biometricData.setECG(data.getECG());
+        biometricData.setHRV(data.getHRV());
+        biometricData.setMOVIMIENTO(data.getMOVIMIENTO());
+        biometricData.setSpO2(data.getSpO2());
+        biometricData.setTimestamp(data.getTimestamp());
+        biometricData.setApiResponse(apiResponse);
 
-        biometricData.setUser(usuario);
-        biometricData.setHeartRate(biodata.getHeartRate());
-        biometricData.setBloodPressure(biodata.getBloodPressure());
-        biometricData.setSpo2(biodata.getSpo2());
-        biometricData.setDate(biodata.getDate());
+        // Asociamos al usuario
+        biometricData.setUser(user);
 
-        BiometricData guardado = registroBiometricoRepository.save(biometricData);
-
-        // 🔥 Lógica para detectar ansiedad y enviar notificación
-        if (esAtaqueAnsiedad(guardado)) {
-            //notificacionService.enviarNotificacion(usuario);
-        }
-
-        return guardado;
-    }
-
-    //ALGORITMO TEMPORAL XD
-    @Override
-    public boolean esAtaqueAnsiedad(BiometricData registro) {
-        return registro.getHeartRate() > 120 && registro.getSpo2() < 90;
-    }
-
-    @Override
-    public List<BiometricData> obtenerRegistros(Long usuarioId) {
-        return registroBiometricoRepository.findByUserIdOrderByDateDesc(usuarioId);
+        // Guardamos la entidad BiometricData en la base de datos
+        biometricDataRepository.save(biometricData);
     }
 }
