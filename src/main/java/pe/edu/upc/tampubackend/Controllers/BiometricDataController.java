@@ -12,6 +12,8 @@ import pe.edu.upc.tampubackend.Services.UsersService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api/biometric-data")
 public class BiometricDataController {
@@ -33,12 +35,12 @@ public class BiometricDataController {
         return "✅ Está vivo";
     }
 
-    @PostMapping("/predict")
+    /*@PostMapping("/predict")
     public ResultadoPredictDTO recibirDatos(@RequestBody BiometricDataDTO data) {
         // Verificar si el usuario existe y crearlo si no existe
         UsersDTO userDto = new UsersDTO();
 
-// Aquí setea todos los campos necesarios según tu entidad UsersDTO
+        // Aquí setea todos los campos necesarios según tu entidad UsersDTO
 
         Users user = usersService.saveOrUpdateUser(userDto);
 
@@ -71,5 +73,39 @@ public class BiometricDataController {
         System.out.println(resultado);
 
         return resultado;
+    }*/
+
+    @PostMapping("/predict")
+    public ResultadoPredictDTO recibirDatos(@RequestBody BiometricDataDTO data) {
+        UsersDTO userDto = new UsersDTO();
+        // Setear datos si es necesario
+        Users user = usersService.saveOrUpdateUser(userDto);
+
+        // Obtener resultado desde FastAPI
+        ResultadoPredictDTO resultado = predictionService.enviarAFastAPI(data);
+
+        // Guardar el timestamp actual
+        data.setTimestamp(LocalDateTime.now());
+
+        // Guardar solo la interpretación del resultado
+        data.setApiResponse(resultado.getDescripcion());
+
+        try {
+            biometricDataService.saveWithApiResponse(data, objectMapper.writeValueAsString(resultado));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        if (resultado.getNivel() == 2) {
+            System.out.println("🚨 Ansiedad fuerte detectada. Enviar alerta.");
+        }
+
+        System.out.println("➡ Resultado desde FastAPI:");
+        System.out.println(resultado);
+
+        return resultado;
     }
+
+
+
 }
