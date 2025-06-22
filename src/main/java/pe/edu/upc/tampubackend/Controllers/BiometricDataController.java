@@ -86,6 +86,14 @@ public class BiometricDataController {
 
     @PostMapping("/predict")
     public ResultadoPredictDTO enviarAFastAPI(BiometricDataDTO data) {
+
+        System.out.println("🎯 Objeto recibido desde Android:");
+        System.out.println("ECG = " + data.getECG());
+        System.out.println("HRV = " + data.getHRV());
+        System.out.println("MOVIMIENTO = " + data.getMOVIMIENTO());
+        System.out.println("SpO2 = " + data.getSpO2());
+        System.out.println("user_id = " + data.getUser_id());
+
         OkHttpClient client = new OkHttpClient();
         ObjectMapper objectMapper = new ObjectMapper();
 
