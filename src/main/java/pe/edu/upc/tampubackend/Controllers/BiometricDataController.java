@@ -1,5 +1,6 @@
 package pe.edu.upc.tampubackend.Controllers;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.tampubackend.DTOs.BiometricDataDTO;
@@ -11,6 +12,14 @@ import pe.edu.upc.tampubackend.Entities.Users;
 import pe.edu.upc.tampubackend.Services.UsersService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import java.time.LocalDateTime;
 
@@ -76,36 +85,40 @@ public class BiometricDataController {
     }*/
 
     @PostMapping("/predict")
-    public ResultadoPredictDTO recibirDatos(@RequestBody BiometricDataDTO data) {
-        UsersDTO userDto = new UsersDTO();
-        // Setear datos si es necesario
-        Users user = usersService.saveOrUpdateUser(userDto);
+    public ResultadoPredictDTO enviarAFastAPI(BiometricDataDTO data) {
+        OkHttpClient client = new OkHttpClient();
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        // Obtener resultado desde FastAPI
-        ResultadoPredictDTO resultado = predictionService.enviarAFastAPI(data);
+        // ✅ Crear JSON solo con los campos que FastAPI espera
+        ObjectNode json = objectMapper.createObjectNode();
+        json.put("user_id", data.getUser_id());
+        json.put("ECG", data.getECG());
+        json.put("HRV", data.getHRV());
+        json.put("MOVIMIENTO", data.getMOVIMIENTO());
+        json.put("SpO2", data.getSpO2());
 
-        // Guardar el timestamp actual
-        data.setTimestamp(LocalDateTime.now());
+        System.out.println("➡ JSON que se enviará a FastAPI:");
+        System.out.println(json.toString());
 
-        // Guardar solo la interpretación del resultado
-        data.setApiResponse(resultado.getDescripcion());
+        // ✅ Usar MediaType y RequestBody correctamente
+        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(json.toString(), mediaType);
 
-        try {
-            biometricDataService.saveWithApiResponse(data, objectMapper.writeValueAsString(resultado));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        Request request = new Request.Builder()
+                .url("https://tampu-api.onrender.com/predict")
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                return new ResultadoPredictDTO(-1, "Error al conectar con FastAPI: " + response.code() + " " + response.message());
+            }
+
+            String jsonResponse = response.body().string();
+            return objectMapper.readValue(jsonResponse, ResultadoPredictDTO.class);
+        } catch (Exception e) {
+            return new ResultadoPredictDTO(-1, "Excepción en FastAPI: " + e.getMessage());
         }
-
-        if (resultado.getNivel() == 2) {
-            System.out.println("🚨 Ansiedad fuerte detectada. Enviar alerta.");
-        }
-
-        System.out.println("➡ Resultado desde FastAPI:");
-        System.out.println(resultado);
-
-        return resultado;
     }
-
-
 
 }
