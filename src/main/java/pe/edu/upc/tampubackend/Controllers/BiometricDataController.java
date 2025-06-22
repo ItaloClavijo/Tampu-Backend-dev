@@ -85,7 +85,7 @@ public class BiometricDataController {
     }*/
 
     @PostMapping("/predict")
-    public ResultadoPredictDTO enviarAFastAPI(BiometricDataDTO data) {
+    public ResultadoPredictDTO enviarAFastAPI(@org.springframework.web.bind.annotation.RequestBody BiometricDataDTO data) {
 
         System.out.println("🎯 Objeto recibido desde Android:");
         System.out.println("ECG = " + data.getECG());
