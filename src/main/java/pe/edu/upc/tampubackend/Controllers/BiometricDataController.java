@@ -9,7 +9,7 @@ import pe.edu.upc.tampubackend.Services.BiometricDataService;
 import pe.edu.upc.tampubackend.Services.PredictionService;
 import pe.edu.upc.tampubackend.DTOs.ResultadoPredictDTO;
 import pe.edu.upc.tampubackend.Entities.Users;
-import pe.edu.upc.tampubackend.Services.UsersService;
+import pe.edu.upc.tampubackend.Services.IUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -37,7 +37,7 @@ public class BiometricDataController {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private UsersService usersService; // Servicio para gestionar usuarios
+    private IUserService usersService; // Servicio para gestionar usuarios
 
     @GetMapping("/test")
     public String test() {
