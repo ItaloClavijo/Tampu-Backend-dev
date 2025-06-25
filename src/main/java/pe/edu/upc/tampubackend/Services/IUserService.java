@@ -14,7 +14,7 @@ public interface IUserService {
 
     public void delete(Long idUser);
 
-    public Users listId(Long idUser);
+    public Users findById(Long idUser);
 
     public void update(Long idUser,Users user);
 

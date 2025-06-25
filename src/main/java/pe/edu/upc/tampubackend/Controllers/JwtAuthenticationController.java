@@ -17,7 +17,6 @@ import pe.edu.upc.tampubackend.Security.JwtResponse;
 import pe.edu.upc.tampubackend.Security.JwtTokenUtil;
 import pe.edu.upc.tampubackend.ServiceImplements.JwtUserDetailsService;
 
-//Clase 3
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class JwtAuthenticationController {

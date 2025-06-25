@@ -123,6 +123,19 @@ public class BiometricDataController {
             }
 
             String jsonResponse = response.body().string();
+            ResultadoPredictDTO resultado = objectMapper.readValue(jsonResponse, ResultadoPredictDTO.class);
+
+
+            // ✅ Si es ansiedad fuerte (nivel 2), enviar mensaje por WhatsApp
+            if (resultado.getNivel() == 2) {
+                System.out.println("🚨 Ansiedad fuerte detectada. Enviando alerta por WhatsApp...");
+                Users usuario = usersService.findById(data.getUser_id());
+                String numeroEmergencia = usuario.getPhoneNumber(); // ← reemplaza con número real
+                String mensaje = "⚠️ Se ha detectado un ataque de ansiedad fuerte en un usuario de la app TAMPU. Asistencia inmediata recomendada.";
+                pe.edu.upc.tampubackend.ServiceImplements.WhatsAppUtil.enviarAlerta(numeroEmergencia, mensaje);
+
+            }
+
             return objectMapper.readValue(jsonResponse, ResultadoPredictDTO.class);
         } catch (Exception e) {
             return new ResultadoPredictDTO(-1, "Excepción en FastAPI: " + e.getMessage());

@@ -30,7 +30,7 @@ public class UserServiceImplement implements IUserService {
     }
 
     @Override
-    public Users listId(Long idUsuario) {
+    public Users findById(Long idUsuario) {
         return uR.findById(idUsuario).orElse(new Users());
     }
 
