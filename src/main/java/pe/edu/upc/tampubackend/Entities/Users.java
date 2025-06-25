@@ -22,7 +22,7 @@ public class Users implements Serializable {
 
     private String email;
 
-    private String phoneNumber;
+    private int edad;
 
     // Relación con la entidad Role (un usuario puede tener múltiples roles)
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -32,18 +32,21 @@ public class Users implements Serializable {
     // Versión para concurrencia optimista
     @Version
     private Long version;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<EmergencyContact> emergencyContacts;
 
     public Users() {
     }
 
-    public Users(Long id, String username, String password, Boolean enabled, String email, String phoneNumber, List<Role> roles) {
+    public Users(Long id, String username, String password, Boolean enabled, String email, int edad, List<Role> roles, List<EmergencyContact> emergencyContacts) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.enabled = enabled;
         this.email = email;
-        this.phoneNumber = phoneNumber;
+        this.edad = edad;
         this.roles = roles;
+        this.emergencyContacts = emergencyContacts;
     }
 
     // Getters y setters
@@ -87,12 +90,12 @@ public class Users implements Serializable {
         this.email = email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public int getEdad() {
+        return edad;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setEdad(int edad) {
+        this.edad = edad;
     }
 
     public List<Role> getRoles() {
@@ -110,4 +113,13 @@ public class Users implements Serializable {
     public void setVersion(Long version) {
         this.version = version;
     }
+
+    public List<EmergencyContact> getEmergencyContacts() {
+        return emergencyContacts;
+    }
+
+    public void setEmergencyContacts(List<EmergencyContact> emergencyContacts) {
+        this.emergencyContacts = emergencyContacts;
+    }
+
 }

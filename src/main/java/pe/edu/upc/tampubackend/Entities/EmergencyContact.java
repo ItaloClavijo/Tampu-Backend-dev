@@ -1,5 +1,6 @@
 package pe.edu.upc.tampubackend.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,32 +11,23 @@ public class EmergencyContact {
 
     private String nombre;
     private String telefono;
-    private String email;
-    private String tokenFCM;  // Para enviar notificaciones al contacto
+    private String tokenFCM;
     private String relacion;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private Users user;
 
     public EmergencyContact() {
     }
 
-    public EmergencyContact(Long id, String nombre, String telefono, String email, String tokenFCM, Users user, String relacion) {
+    public EmergencyContact(Long id, String nombre, String telefono, String tokenFCM, Users user, String relacion) {
         this.id = id;
         this.nombre = nombre;
         this.telefono = telefono;
-        this.email = email;
         this.tokenFCM = tokenFCM;
         this.user = user;
-        this.relacion = relacion;
-    }
-
-    public String getRelacion() {
-        return relacion;
-    }
-
-    public void setRelacion(String relacion) {
         this.relacion = relacion;
     }
 
@@ -63,20 +55,20 @@ public class EmergencyContact {
         this.telefono = telefono;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getTokenFCM() {
         return tokenFCM;
     }
 
     public void setTokenFCM(String tokenFCM) {
         this.tokenFCM = tokenFCM;
+    }
+
+    public String getRelacion() {
+        return relacion;
+    }
+
+    public void setRelacion(String relacion) {
+        this.relacion = relacion;
     }
 
     public Users getUser() {

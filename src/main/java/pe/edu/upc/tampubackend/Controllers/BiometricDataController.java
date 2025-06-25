@@ -5,6 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.tampubackend.DTOs.BiometricDataDTO;
 import pe.edu.upc.tampubackend.DTOs.UsersDTO;
+import pe.edu.upc.tampubackend.Entities.EmergencyContact;
+import pe.edu.upc.tampubackend.Repositories.IBiometricDataRepository;
+import pe.edu.upc.tampubackend.Repositories.IEmergencyContactRepository;
+import pe.edu.upc.tampubackend.ServiceImplements.WhatsAppUtil;
 import pe.edu.upc.tampubackend.Services.BiometricDataService;
 import pe.edu.upc.tampubackend.Services.PredictionService;
 import pe.edu.upc.tampubackend.DTOs.ResultadoPredictDTO;
@@ -22,6 +26,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/biometric-data")
@@ -38,6 +43,10 @@ public class BiometricDataController {
 
     @Autowired
     private IUserService usersService; // Servicio para gestionar usuarios
+
+    @Autowired
+    private IEmergencyContactRepository emergencyContactRepository;
+
 
     @GetMapping("/test")
     public String test() {
@@ -129,12 +138,23 @@ public class BiometricDataController {
             // ✅ Si es ansiedad fuerte (nivel 2), enviar mensaje por WhatsApp
             if (resultado.getNivel() == 2) {
                 System.out.println("🚨 Ansiedad fuerte detectada. Enviando alerta por WhatsApp...");
-                Users usuario = usersService.findById(data.getUser_id());
-                String numeroEmergencia = usuario.getPhoneNumber(); // ← reemplaza con número real
-                String mensaje = "⚠️ Se ha detectado un ataque de ansiedad fuerte en un usuario de la app TAMPU. Asistencia inmediata recomendada.";
-                pe.edu.upc.tampubackend.ServiceImplements.WhatsAppUtil.enviarAlerta(numeroEmergencia, mensaje);
 
+                Users usuario = usersService.findById(data.getUser_id());
+                List<EmergencyContact> contactos = emergencyContactRepository.findByUserId(usuario.getId());
+                EmergencyContact contacto = contactos.isEmpty() ? null : contactos.get(contactos.size() - 1);
+
+                if (contacto != null) {
+                    String mensaje = "⚠️ Alerta: Se ha detectado un episodio de ansiedad fuerte en el usuario "
+                            + usuario.getUsername() + ".\n"
+                            + "Contacto: " + contacto.getNombre() + " (" + contacto.getRelacion() + ")";
+
+                    WhatsAppUtil.enviarAlerta(contacto.getTelefono(), mensaje);
+                } else {
+                    System.out.println("❗ Usuario sin contacto de emergencia registrado.");
+                }
             }
+
+
 
             return objectMapper.readValue(jsonResponse, ResultadoPredictDTO.class);
         } catch (Exception e) {
