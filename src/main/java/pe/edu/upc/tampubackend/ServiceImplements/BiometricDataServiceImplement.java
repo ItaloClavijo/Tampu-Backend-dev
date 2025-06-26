@@ -10,6 +10,8 @@ import pe.edu.upc.tampubackend.Repositories.IUserRepository;
 import pe.edu.upc.tampubackend.DTOs.BiometricDataDTO;
 import pe.edu.upc.tampubackend.Services.BiometricDataService;
 
+import java.time.LocalDateTime;
+
 @Service
 public class BiometricDataServiceImplement implements BiometricDataService {
 
@@ -22,31 +24,21 @@ public class BiometricDataServiceImplement implements BiometricDataService {
     @Override
     @Transactional
     public void saveWithApiResponse(BiometricDataDTO data, String apiResponse) {
-        // Buscar el usuario por ID
+        // Validar que el usuario exista, si no lanzar excepción
         Users user = usersRepository.findById(data.getUser_id())
-                .orElseGet(() -> {
-                    // Si el usuario no existe, se crea un nuevo usuario
-                    Users newUser = new Users();
-                    newUser.setId(data.getUser_id());
-                    newUser.setUsername("Nuevo Usuario"); // Puedes poner datos por defecto o pedirlos
-                    newUser.setEmail("email@domain.com"); // Puedes poner un email por defecto o asignarlo de alguna otra forma
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + data.getUser_id()));
 
-                    return usersRepository.save(newUser);  // Guardamos al nuevo usuario
-                });
-
-        // Crear la entidad BiometricData
         BiometricData biometricData = new BiometricData();
         biometricData.setECG(data.getECG());
         biometricData.setHRV(data.getHRV());
         biometricData.setMOVIMIENTO(data.getMOVIMIENTO());
         biometricData.setSpO2(data.getSpO2());
-        biometricData.setTimestamp(data.getTimestamp());
+        biometricData.setTimestamp(
+                data.getTimestamp() != null ? data.getTimestamp() : LocalDateTime.now()
+        );
         biometricData.setApiResponse(apiResponse);
-
-        // Asociamos al usuario
         biometricData.setUser(user);
 
-        // Guardamos la entidad BiometricData en la base de datos
         biometricDataRepository.save(biometricData);
     }
 }

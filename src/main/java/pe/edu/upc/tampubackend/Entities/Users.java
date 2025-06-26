@@ -1,5 +1,6 @@
 package pe.edu.upc.tampubackend.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
@@ -22,28 +23,41 @@ public class Users implements Serializable {
 
     private String email;
 
-    private String phoneNumber;
+    private int edad;
+
+    private String sexo;
+
+    private String carrera;
+
 
     // Relación con la entidad Role (un usuario puede tener múltiples roles)
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private List<Role> roles;
 
-    // Versión para concurrencia optimista
+     //Versión para concurrencia optimista
     @Version
     private Long version;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<EmergencyContact> emergencyContacts;
 
     public Users() {
     }
 
-    public Users(Long id, String username, String password, Boolean enabled, String email, String phoneNumber, List<Role> roles) {
+    public Users(Long id, String username, String password, Boolean enabled, String email, int edad, String sexo, String carrera, List<Role> roles, Long version, List<EmergencyContact> emergencyContacts) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.enabled = enabled;
         this.email = email;
-        this.phoneNumber = phoneNumber;
+        this.edad = edad;
+        this.sexo = sexo;
+        this.carrera = carrera;
         this.roles = roles;
+        this.version = version;
+        this.emergencyContacts = emergencyContacts;
     }
 
     // Getters y setters
@@ -87,12 +101,12 @@ public class Users implements Serializable {
         this.email = email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public int getEdad() {
+        return edad;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setEdad(int edad) {
+        this.edad = edad;
     }
 
     public List<Role> getRoles() {
@@ -109,5 +123,29 @@ public class Users implements Serializable {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public List<EmergencyContact> getEmergencyContacts() {
+        return emergencyContacts;
+    }
+
+    public void setEmergencyContacts(List<EmergencyContact> emergencyContacts) {
+        this.emergencyContacts = emergencyContacts;
+    }
+
+    public String getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(String sexo) {
+        this.sexo = sexo;
+    }
+
+    public String getCarrera() {
+        return carrera;
+    }
+
+    public void setCarrera(String carrera) {
+        this.carrera = carrera;
     }
 }

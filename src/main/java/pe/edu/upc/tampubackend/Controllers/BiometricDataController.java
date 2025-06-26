@@ -5,6 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.tampubackend.DTOs.BiometricDataDTO;
 import pe.edu.upc.tampubackend.DTOs.UsersDTO;
+import pe.edu.upc.tampubackend.Entities.EmergencyContact;
+import pe.edu.upc.tampubackend.Entities.Notification;
+import pe.edu.upc.tampubackend.Repositories.IBiometricDataRepository;
+import pe.edu.upc.tampubackend.Repositories.IEmergencyContactRepository;
+import pe.edu.upc.tampubackend.ServiceImplements.NotificationServiceImplement;
+import pe.edu.upc.tampubackend.ServiceImplements.WhatsAppUtil;
 import pe.edu.upc.tampubackend.Services.BiometricDataService;
 import pe.edu.upc.tampubackend.Services.PredictionService;
 import pe.edu.upc.tampubackend.DTOs.ResultadoPredictDTO;
@@ -22,6 +28,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/biometric-data")
@@ -38,6 +47,12 @@ public class BiometricDataController {
 
     @Autowired
     private IUserService usersService; // Servicio para gestionar usuarios
+
+    @Autowired
+    private IEmergencyContactRepository emergencyContactRepository;
+
+    @Autowired
+    private NotificationServiceImplement notificationService;
 
     @GetMapping("/test")
     public String test() {
@@ -123,19 +138,55 @@ public class BiometricDataController {
             }
 
             String jsonResponse = response.body().string();
+            System.out.println("🔍 Respuesta del Modelo de Machine Learning (FastAPI): " + jsonResponse);
             ResultadoPredictDTO resultado = objectMapper.readValue(jsonResponse, ResultadoPredictDTO.class);
 
 
             // ✅ Si es ansiedad fuerte (nivel 2), enviar mensaje por WhatsApp
             if (resultado.getNivel() == 2) {
                 System.out.println("🚨 Ansiedad fuerte detectada. Enviando alerta por WhatsApp...");
+
                 Users usuario = usersService.findById(data.getUser_id());
-                String numeroEmergencia = usuario.getPhoneNumber(); // ← reemplaza con número real
-                String mensaje = "⚠️ Se ha detectado un ataque de ansiedad fuerte en un usuario de la app TAMPU. Asistencia inmediata recomendada.";
-                pe.edu.upc.tampubackend.ServiceImplements.WhatsAppUtil.enviarAlerta(numeroEmergencia, mensaje);
+                List<EmergencyContact> contactos = emergencyContactRepository.findByUserId(usuario.getId());
+                EmergencyContact contacto = contactos.isEmpty() ? null : contactos.get(contactos.size() - 1);
+
+                if (contacto != null) {
+                    String mensaje = "⚠️ Alerta: Se ha detectado un episodio de ansiedad fuerte en el usuario "
+                            + usuario.getUsername() + ".\n"
+                            + "Contacto de apoyo: " + contacto.getNombre() + " (" + contacto.getRelacion() + ")";
+
+                    // convertimos el Long a String (como lo necesita CallMeBot)
+                    String apiKey = String.valueOf(contacto.getApiKey());
+                    String telefono = contacto.getTelefono();
+                    // ahora llamas así
+                    WhatsAppUtil.enviarAlerta(telefono, mensaje, apiKey);
+                } else {
+                    System.out.println("❗ Usuario sin contacto de emergencia registrado.");
+                }
+
+//                ✅ Enviar notificación push al usuario
+//                if (usuario.getFirebaseToken() != null) {
+//                    Notification notification = new Notification();
+//                    notification.setRecipientToken(usuario.getFirebaseToken());
+//                    notification.setTitle("🚨 Ansiedad detectada");
+//                    notification.setBody("Hemos detectado un episodio de ansiedad fuerte. Respira profundamente.");
+//                    notification.setImage("https://i.imgur.com/OdL0XPt.png"); // Imagen opcional
+//                    notification.setDate(LocalDateTime.now());
+//                    notification.setUser(usuario);
+//                    notification.setEmergencyContact(contacto); // opcional
+//
+//                    Map<String, String> extraData = new HashMap<>();
+//                    extraData.put("nivel", String.valueOf(resultado.getNivel()));
+//                    extraData.put("user_id", String.valueOf(usuario.getId()));
+//                    notification.setData(extraData);
+//
+//                    notificationService.sendNotiByToken(notification);
+//                } else {
+//                    System.out.println("❗ El usuario no tiene token de Firebase registrado.");
+//                }
 
             }
-
+            biometricDataService.saveWithApiResponse(data, jsonResponse);
             return objectMapper.readValue(jsonResponse, ResultadoPredictDTO.class);
         } catch (Exception e) {
             return new ResultadoPredictDTO(-1, "Excepción en FastAPI: " + e.getMessage());

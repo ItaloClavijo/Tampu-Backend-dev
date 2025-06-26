@@ -5,16 +5,17 @@ import java.util.List;
 
 public class UsersDTO {
 
-    private Long id; // Añadir el ID para poder actualizar el usuario en la base de datos
+    private Long id;
     private String username;
     private String password;
     private Boolean enabled;
     private String email;
-    private String phoneNumber;
+    private int edad;
     private List<Role> roles;
-    private Long version; // Añadir la versión para control de concurrencia optimista
+    private Long version;
 
-    // Getters y Setters
+    public UsersDTO() {}
+
     public Long getId() {
         return id;
     }
@@ -55,12 +56,12 @@ public class UsersDTO {
         this.email = email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public int getEdad() {
+        return edad;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setEdad(int edad) {
+        this.edad = edad;
     }
 
     public List<Role> getRoles() {
