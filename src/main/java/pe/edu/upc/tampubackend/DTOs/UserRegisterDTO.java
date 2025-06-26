@@ -11,6 +11,7 @@ public class UserRegisterDTO {
     private String contactoNombre;
     private String contactoTelefono;
     private String contactoRelacion;
+    private String contactoApiKey;
 
     public UserRegisterDTO() {}
 
@@ -68,5 +69,13 @@ public class UserRegisterDTO {
 
     public void setContactoRelacion(String contactoRelacion) {
         this.contactoRelacion = contactoRelacion;
+    }
+
+    public String getContactoApiKey() {
+        return contactoApiKey;
+    }
+
+    public void setContactoApiKey(String contactoApiKey) {
+        this.contactoApiKey = contactoApiKey;
     }
 }

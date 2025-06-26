@@ -1,5 +1,6 @@
 package pe.edu.upc.tampubackend.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
@@ -24,15 +25,19 @@ public class Users implements Serializable {
 
     private int edad;
 
+
+
     // Relación con la entidad Role (un usuario puede tener múltiples roles)
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private List<Role> roles;
 
     // Versión para concurrencia optimista
-    @Version
-    private Long version;
+//    @Version
+//    private Long version;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<EmergencyContact> emergencyContacts;
 
     public Users() {
@@ -106,13 +111,13 @@ public class Users implements Serializable {
         this.roles = roles;
     }
 
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
+//    public Long getVersion() {
+//        return version;
+//    }
+//
+//    public void setVersion(Long version) {
+//        this.version = version;
+//    }
 
     public List<EmergencyContact> getEmergencyContacts() {
         return emergencyContacts;

@@ -13,13 +13,13 @@ public class WhatsAppUtil {
     private static final String API_KEY = "9617515";  // ← reemplaza
     private static final String BASE_URL = "https://api.callmebot.com/whatsapp.php";
 
-    public static void enviarAlerta(String numeroTelefono, String mensaje) {
+    public static void enviarAlerta(String numeroTelefono, String mensaje, String apiKey) {
         String url = String.format(
                 "%s?phone=%s&text=%s&apikey=%s",
                 BASE_URL,
                 numeroTelefono,
                 URLEncoder.encode(mensaje, StandardCharsets.UTF_8),
-                API_KEY
+                apiKey
         );
 
         Request request = new Request.Builder()
@@ -39,7 +39,6 @@ public class WhatsAppUtil {
                 System.out.println("✅ Mensaje enviado: " + response.body().string());
             }
         });
-
     }
 
 }

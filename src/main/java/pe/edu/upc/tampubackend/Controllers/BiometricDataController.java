@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.tampubackend.DTOs.BiometricDataDTO;
 import pe.edu.upc.tampubackend.DTOs.UsersDTO;
 import pe.edu.upc.tampubackend.Entities.EmergencyContact;
+import pe.edu.upc.tampubackend.Entities.Notification;
 import pe.edu.upc.tampubackend.Repositories.IBiometricDataRepository;
 import pe.edu.upc.tampubackend.Repositories.IEmergencyContactRepository;
+import pe.edu.upc.tampubackend.ServiceImplements.NotificationServiceImplement;
 import pe.edu.upc.tampubackend.ServiceImplements.WhatsAppUtil;
 import pe.edu.upc.tampubackend.Services.BiometricDataService;
 import pe.edu.upc.tampubackend.Services.PredictionService;
@@ -26,7 +28,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/biometric-data")
@@ -47,6 +51,8 @@ public class BiometricDataController {
     @Autowired
     private IEmergencyContactRepository emergencyContactRepository;
 
+    @Autowired
+    private NotificationServiceImplement notificationService;
 
     @GetMapping("/test")
     public String test() {
@@ -132,6 +138,7 @@ public class BiometricDataController {
             }
 
             String jsonResponse = response.body().string();
+            System.out.println("🔍 Respuesta del Modelo de Machine Learning (FastAPI): " + jsonResponse);
             ResultadoPredictDTO resultado = objectMapper.readValue(jsonResponse, ResultadoPredictDTO.class);
 
 
@@ -146,16 +153,40 @@ public class BiometricDataController {
                 if (contacto != null) {
                     String mensaje = "⚠️ Alerta: Se ha detectado un episodio de ansiedad fuerte en el usuario "
                             + usuario.getUsername() + ".\n"
-                            + "Contacto: " + contacto.getNombre() + " (" + contacto.getRelacion() + ")";
+                            + "Contacto de apoyo: " + contacto.getNombre() + " (" + contacto.getRelacion() + ")";
 
-                    WhatsAppUtil.enviarAlerta(contacto.getTelefono(), mensaje);
+                    // convertimos el Long a String (como lo necesita CallMeBot)
+                    String apiKey = String.valueOf(contacto.getApiKey());
+                    String telefono = contacto.getTelefono();
+                    // ahora llamas así
+                    WhatsAppUtil.enviarAlerta(telefono, mensaje, apiKey);
                 } else {
                     System.out.println("❗ Usuario sin contacto de emergencia registrado.");
                 }
+
+//                ✅ Enviar notificación push al usuario
+//                if (usuario.getFirebaseToken() != null) {
+//                    Notification notification = new Notification();
+//                    notification.setRecipientToken(usuario.getFirebaseToken());
+//                    notification.setTitle("🚨 Ansiedad detectada");
+//                    notification.setBody("Hemos detectado un episodio de ansiedad fuerte. Respira profundamente.");
+//                    notification.setImage("https://i.imgur.com/OdL0XPt.png"); // Imagen opcional
+//                    notification.setDate(LocalDateTime.now());
+//                    notification.setUser(usuario);
+//                    notification.setEmergencyContact(contacto); // opcional
+//
+//                    Map<String, String> extraData = new HashMap<>();
+//                    extraData.put("nivel", String.valueOf(resultado.getNivel()));
+//                    extraData.put("user_id", String.valueOf(usuario.getId()));
+//                    notification.setData(extraData);
+//
+//                    notificationService.sendNotiByToken(notification);
+//                } else {
+//                    System.out.println("❗ El usuario no tiene token de Firebase registrado.");
+//                }
+
             }
-
-
-
+            biometricDataService.saveWithApiResponse(data, jsonResponse);
             return objectMapper.readValue(jsonResponse, ResultadoPredictDTO.class);
         } catch (Exception e) {
             return new ResultadoPredictDTO(-1, "Excepción en FastAPI: " + e.getMessage());

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface IUserService {
 
-    public void insert(Users user);
+
 
     public List<Users> list();
 

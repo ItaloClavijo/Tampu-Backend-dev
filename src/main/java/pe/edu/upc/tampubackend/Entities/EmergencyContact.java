@@ -11,8 +11,11 @@ public class EmergencyContact {
 
     private String nombre;
     private String telefono;
-    private String tokenFCM;
     private String relacion;
+    @Column(name = "api_key")
+    private String apiKey;
+
+
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -22,13 +25,13 @@ public class EmergencyContact {
     public EmergencyContact() {
     }
 
-    public EmergencyContact(Long id, String nombre, String telefono, String tokenFCM, Users user, String relacion) {
+    public EmergencyContact(Long id, String nombre, String telefono, String relacion, String apiKey, Users user) {
         this.id = id;
         this.nombre = nombre;
         this.telefono = telefono;
-        this.tokenFCM = tokenFCM;
-        this.user = user;
         this.relacion = relacion;
+        this.apiKey = apiKey;
+        this.user = user;
     }
 
     public Long getId() {
@@ -55,14 +58,6 @@ public class EmergencyContact {
         this.telefono = telefono;
     }
 
-    public String getTokenFCM() {
-        return tokenFCM;
-    }
-
-    public void setTokenFCM(String tokenFCM) {
-        this.tokenFCM = tokenFCM;
-    }
-
     public String getRelacion() {
         return relacion;
     }
@@ -77,5 +72,13 @@ public class EmergencyContact {
 
     public void setUser(Users user) {
         this.user = user;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 }
