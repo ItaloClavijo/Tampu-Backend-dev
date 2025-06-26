@@ -6,6 +6,8 @@ public class UserRegisterDTO {
     private String password;
     private String email;
     private int edad;
+    private String sexo;
+    private String carrera;
 
     // Datos del contacto de emergencia
     private String contactoNombre;
@@ -77,5 +79,21 @@ public class UserRegisterDTO {
 
     public void setContactoApiKey(String contactoApiKey) {
         this.contactoApiKey = contactoApiKey;
+    }
+
+    public String getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(String sexo) {
+        this.sexo = sexo;
+    }
+
+    public String getCarrera() {
+        return carrera;
+    }
+
+    public void setCarrera(String carrera) {
+        this.carrera = carrera;
     }
 }

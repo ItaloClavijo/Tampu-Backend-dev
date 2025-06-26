@@ -67,6 +67,8 @@ public class UserServiceImplement implements IUserService {
         user.setEmail(dto.getEmail());
         user.setEdad(dto.getEdad());
         user.setEnabled(true);
+        user.setSexo(dto.getSexo());
+        user.setCarrera(dto.getCarrera());
 
         System.out.println("📤 Guardando usuario en la base de datos...");
         Users savedUser;

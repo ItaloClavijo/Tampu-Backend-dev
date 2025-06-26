@@ -25,6 +25,9 @@ public class Users implements Serializable {
 
     private int edad;
 
+    private String sexo;
+
+    private String carrera;
 
 
     // Relación con la entidad Role (un usuario puede tener múltiples roles)
@@ -32,9 +35,9 @@ public class Users implements Serializable {
     @JoinColumn(name = "user_id")
     private List<Role> roles;
 
-    // Versión para concurrencia optimista
-//    @Version
-//    private Long version;
+     //Versión para concurrencia optimista
+    @Version
+    private Long version;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -43,14 +46,17 @@ public class Users implements Serializable {
     public Users() {
     }
 
-    public Users(Long id, String username, String password, Boolean enabled, String email, int edad, List<Role> roles, List<EmergencyContact> emergencyContacts) {
+    public Users(Long id, String username, String password, Boolean enabled, String email, int edad, String sexo, String carrera, List<Role> roles, Long version, List<EmergencyContact> emergencyContacts) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.enabled = enabled;
         this.email = email;
         this.edad = edad;
+        this.sexo = sexo;
+        this.carrera = carrera;
         this.roles = roles;
+        this.version = version;
         this.emergencyContacts = emergencyContacts;
     }
 
@@ -111,13 +117,13 @@ public class Users implements Serializable {
         this.roles = roles;
     }
 
-//    public Long getVersion() {
-//        return version;
-//    }
-//
-//    public void setVersion(Long version) {
-//        this.version = version;
-//    }
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 
     public List<EmergencyContact> getEmergencyContacts() {
         return emergencyContacts;
@@ -127,4 +133,19 @@ public class Users implements Serializable {
         this.emergencyContacts = emergencyContacts;
     }
 
+    public String getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(String sexo) {
+        this.sexo = sexo;
+    }
+
+    public String getCarrera() {
+        return carrera;
+    }
+
+    public void setCarrera(String carrera) {
+        this.carrera = carrera;
+    }
 }
