@@ -84,7 +84,13 @@ public class UserServiceImplement implements IUserService {
         System.out.println("🛠️ Creando contacto de emergencia...");
         EmergencyContact contact = new EmergencyContact();
         contact.setNombre(dto.getContactoNombre());
-        contact.setTelefono(dto.getContactoTelefono());
+
+        String telefono = dto.getContactoTelefono();
+        if (!telefono.startsWith("+51")) {
+            telefono = "+51" + telefono.replaceAll("^0+", ""); // Quita ceros iniciales si los hubiera
+        }
+        contact.setTelefono(telefono);
+
         contact.setRelacion(dto.getContactoRelacion());
         contact.setUser(savedUser);
         contact.setApiKey(dto.getContactoApiKey());
