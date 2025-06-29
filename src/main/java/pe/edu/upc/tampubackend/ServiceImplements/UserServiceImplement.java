@@ -40,12 +40,54 @@ public class UserServiceImplement implements IUserService {
     private IEmergencyContactRepository emergencyContactRepository;
 
     @Override
-    public void update(Long idUser, Users user) {
+    public void update(Long idUser, UserRegisterDTO dto) {
         Users u = uR.findById(idUser).orElseThrow();
-        u.setUsername(user.getUsername());
-        u.setPassword(user.getPassword());
-        u.setEmail(user.getEmail());
-        uR.save(u);
+
+        // Validación de username único
+        if (!u.getUsername().equals(dto.getUsername())) {
+            if (uR.existsByUsername(dto.getUsername())) {
+                throw new RuntimeException("El nombre de usuario '" + dto.getUsername() + "' ya está en uso.");
+            }
+            u.setUsername(dto.getUsername());
+        }
+
+        u.setPassword(passwordEncoder.encode(dto.getPassword()));
+        u.setEmail(dto.getEmail());
+        u.setEdad(dto.getEdad());
+        u.setEnabled(true);
+        u.setSexo(dto.getSexo());
+        u.setCarrera(dto.getCarrera());
+
+        Users savedUser;
+        try {
+            savedUser = uR.save(u);
+            System.out.println("✅ Usuario actualizado: " + savedUser.getId());
+        } catch (Exception e) {
+            System.err.println("💥 Error al actualizar el usuario: " + e.getMessage());
+            throw e;
+        }
+
+        // Contacto de emergencia
+        EmergencyContact contact = new EmergencyContact();
+        contact.setNombre(dto.getContactoNombre());
+
+        String telefono = dto.getContactoTelefono();
+        if (!telefono.startsWith("+51")) {
+            telefono = "+51" + telefono.replaceAll("^0+", "");
+        }
+        contact.setTelefono(telefono);
+        contact.setRelacion(dto.getContactoRelacion());
+        contact.setUser(savedUser);
+        contact.setApiKey(dto.getContactoApiKey());
+
+        System.out.println("📤 Guardando contacto de emergencia...");
+        try {
+            emergencyContactRepository.save(contact);
+            System.out.println("✅ Contacto de emergencia guardado correctamente.");
+        } catch (Exception e) {
+            System.err.println("💥 Error al guardar el contacto: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override
