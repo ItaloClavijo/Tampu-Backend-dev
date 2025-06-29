@@ -1,6 +1,7 @@
 package pe.edu.upc.tampubackend.Services;
 
 import pe.edu.upc.tampubackend.DTOs.UserRegisterDTO;
+import pe.edu.upc.tampubackend.Entities.EmergencyContact;
 import pe.edu.upc.tampubackend.Entities.Users;
 
 import java.time.LocalDate;
@@ -17,8 +18,9 @@ public interface IUserService {
 
     public Users findById(Long idUser);
 
-    public void update(Long idUser,Users user);
+    public void update(Long idUser, UserRegisterDTO dto);
 
     void registerUser(UserRegisterDTO dto);
+
 
 }
