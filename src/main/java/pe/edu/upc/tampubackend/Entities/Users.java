@@ -29,6 +29,7 @@ public class Users implements Serializable {
 
     private String carrera;
 
+    private String firebaseToken;  // Campo para almacenar el token de Firebase
 
     // Relación con la entidad Role (un usuario puede tener múltiples roles)
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -147,5 +148,13 @@ public class Users implements Serializable {
 
     public void setCarrera(String carrera) {
         this.carrera = carrera;
+    }
+
+    public String getFirebaseToken() {
+        return firebaseToken;
+    }
+
+    public void setFirebaseToken(String firebaseToken) {
+        this.firebaseToken = firebaseToken;
     }
 }

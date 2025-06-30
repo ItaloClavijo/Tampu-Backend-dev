@@ -1,28 +1,30 @@
 package pe.edu.upc.tampubackend.DTOs;
 
+import jakarta.persistence.Column;
 import pe.edu.upc.tampubackend.Entities.Role;
 import java.util.List;
 
 public class UsersDTO {
 
-    private Long id;
     private String username;
     private String password;
     private Boolean enabled;
     private String email;
     private int edad;
-    private List<Role> roles;
-    private Long version;
+    private String sexo;
+    private String carrera;
+
+    public UsersDTO(String username, String password, Boolean enabled, String email, int edad, String sexo, String carrera) {
+        this.username = username;
+        this.password = password;
+        this.enabled = enabled;
+        this.email = email;
+        this.edad = edad;
+        this.sexo = sexo;
+        this.carrera = carrera;
+    }
 
     public UsersDTO() {}
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getUsername() {
         return username;
@@ -64,19 +66,19 @@ public class UsersDTO {
         this.edad = edad;
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public String getSexo() {
+        return sexo;
     }
 
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
+    public void setSexo(String sexo) {
+        this.sexo = sexo;
     }
 
-    public Long getVersion() {
-        return version;
+    public String getCarrera() {
+        return carrera;
     }
 
-    public void setVersion(Long version) {
-        this.version = version;
+    public void setCarrera(String carrera) {
+        this.carrera = carrera;
     }
 }
