@@ -1,5 +1,6 @@
 package pe.edu.upc.tampubackend.Controllers;
 
+import com.google.firebase.auth.FirebaseAuth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,7 @@ import pe.edu.upc.tampubackend.Entities.Users;
 import pe.edu.upc.tampubackend.Security.JwtRequest;
 import pe.edu.upc.tampubackend.Security.JwtResponse;
 import pe.edu.upc.tampubackend.Security.JwtTokenUtil;
+import pe.edu.upc.tampubackend.ServiceImplements.FirebaseService;
 import pe.edu.upc.tampubackend.ServiceImplements.JwtUserDetailsService;
 
 @RestController
@@ -26,6 +28,8 @@ public class JwtAuthenticationController {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private JwtUserDetailsService userDetailsService;
+    @Autowired
+    private FirebaseService firebaseService;
 
 
     @PostMapping("/login")
@@ -33,6 +37,11 @@ public class JwtAuthenticationController {
         authenticate(req.getUsername(), req.getPassword());
         final UserDetails userDetails = userDetailsService.loadUserByUsername(req.getUsername());
         final Users user = userDetailsService.getUserByUsername(req.getUsername());
+
+        // Guardar el token de Firebase si fue enviado en la solicitud
+        if (req.getFirebaseToken() != null) {
+            firebaseService.saveFirebaseToken(user.getId(), req.getFirebaseToken());
+        }
 
         final String token = jwtTokenUtil.generateToken(userDetails, user.getId());
 

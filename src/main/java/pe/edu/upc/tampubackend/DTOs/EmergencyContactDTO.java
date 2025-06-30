@@ -2,30 +2,21 @@ package pe.edu.upc.tampubackend.DTOs;
 
 public class EmergencyContactDTO {
 
-    private Long id;
+
     private String nombre;
     private String telefono;
     private String relacion;
-    private String ApiKey;
+    private String apiKey;
     private Long userId;  // para identificar al usuario relacionado (opcional pero útil)
 
     public EmergencyContactDTO() {}
 
-    public EmergencyContactDTO(Long id, String nombre, String telefono, String relacion, String apiKey, Long userId) {
-        this.id = id;
+    public EmergencyContactDTO(String nombre, String telefono, String relacion, String apiKey, Long userId) {
         this.nombre = nombre;
         this.telefono = telefono;
         this.relacion = relacion;
-        ApiKey = apiKey;
+        this.apiKey = apiKey;
         this.userId = userId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getNombre() {
@@ -61,10 +52,10 @@ public class EmergencyContactDTO {
     }
 
     public String getApiKey() {
-        return ApiKey;
+        return apiKey;
     }
 
     public void setApiKey(String apiKey) {
-        ApiKey = apiKey;
+        this.apiKey = apiKey;
     }
 }

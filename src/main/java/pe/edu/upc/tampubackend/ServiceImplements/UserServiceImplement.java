@@ -1,7 +1,9 @@
 package pe.edu.upc.tampubackend.ServiceImplements;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import pe.edu.upc.tampubackend.DTOs.EmergencyContactDTO;
 import pe.edu.upc.tampubackend.DTOs.UserRegisterDTO;
+import pe.edu.upc.tampubackend.DTOs.UsersDTO;
 import pe.edu.upc.tampubackend.Entities.EmergencyContact;
 import pe.edu.upc.tampubackend.Entities.Users;
 import pe.edu.upc.tampubackend.Repositories.IEmergencyContactRepository;
@@ -40,9 +42,8 @@ public class UserServiceImplement implements IUserService {
     private IEmergencyContactRepository emergencyContactRepository;
 
     @Override
-    public void update(Long idUser, UserRegisterDTO dto) {
+    public void updateUser(Long idUser, UsersDTO dto) {
         Users u = uR.findById(idUser).orElseThrow();
-
         // Validación de username único
         if (!u.getUsername().equals(dto.getUsername())) {
             if (uR.existsByUsername(dto.getUsername())) {
@@ -66,21 +67,36 @@ public class UserServiceImplement implements IUserService {
             System.err.println("💥 Error al actualizar el usuario: " + e.getMessage());
             throw e;
         }
+    }
 
-        // Contacto de emergencia
-        EmergencyContact contact = new EmergencyContact();
-        contact.setNombre(dto.getContactoNombre());
+    @Override
+    public void updateConctact(Long idUser, EmergencyContactDTO dto) {
 
-        String telefono = dto.getContactoTelefono();
+        // Buscar el usuario
+        Users u = uR.findById(idUser).orElseThrow();
+
+        // Buscar el contacto de emergencia existente (si lo hay)
+        EmergencyContact contact = emergencyContactRepository.findByUserId(idUser);
+
+        if (contact == null) {
+            // Si no existe, crea uno nuevo
+            contact = new EmergencyContact();
+            contact.setUser(u);
+        }
+
+        // Actualiza los campos del contacto de emergencia
+        contact.setNombre(dto.getNombre());
+
+        String telefono = dto.getTelefono();
         if (!telefono.startsWith("+51")) {
-            telefono = "+51" + telefono.replaceAll("^0+", "");
+            telefono = "+51" + telefono.replaceAll("^0+", ""); // Quita ceros iniciales si los hubiera
         }
         contact.setTelefono(telefono);
-        contact.setRelacion(dto.getContactoRelacion());
-        contact.setUser(savedUser);
-        contact.setApiKey(dto.getContactoApiKey());
+        contact.setRelacion(dto.getRelacion());
+        contact.setApiKey(dto.getApiKey());
 
-        System.out.println("📤 Guardando contacto de emergencia...");
+        // Guardar o actualizar el contacto
+        System.out.println("📤 Guardando o actualizando contacto de emergencia...");
         try {
             emergencyContactRepository.save(contact);
             System.out.println("✅ Contacto de emergencia guardado correctamente.");
@@ -89,6 +105,7 @@ public class UserServiceImplement implements IUserService {
             throw e;
         }
     }
+
 
     @Override
     public void registerUser(UserRegisterDTO dto) {
