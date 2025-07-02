@@ -22,6 +22,8 @@ public class BiometricData {
     @Version  // Coloca la anotación @Version para gestionar la concurrencia optimista
     private Long version;
 
+    private Integer nivel;
+
     @ManyToOne  // Relación con la entidad Users
     @JoinColumn(name = "user_id")
     private Users user; // Relación con la entidad Users
@@ -97,5 +99,13 @@ public class BiometricData {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public Integer getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(Integer nivel) {
+        this.nivel = nivel;
     }
 }

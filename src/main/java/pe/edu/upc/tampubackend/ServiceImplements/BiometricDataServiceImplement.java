@@ -3,6 +3,7 @@ package pe.edu.upc.tampubackend.ServiceImplements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.upc.tampubackend.DTOs.BiometricDataHistorialDTO;
 import pe.edu.upc.tampubackend.Entities.BiometricData;
 import pe.edu.upc.tampubackend.Entities.Users;
 import pe.edu.upc.tampubackend.Repositories.IBiometricDataRepository;
@@ -11,6 +12,9 @@ import pe.edu.upc.tampubackend.DTOs.BiometricDataDTO;
 import pe.edu.upc.tampubackend.Services.BiometricDataService;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BiometricDataServiceImplement implements BiometricDataService {
@@ -41,4 +45,42 @@ public class BiometricDataServiceImplement implements BiometricDataService {
 
         biometricDataRepository.save(biometricData);
     }
+
+
+    @Override
+    @Transactional
+    public List<BiometricDataHistorialDTO> getBiometricDataNivel2(Long userId) {
+        // Obtener todos los registros de BiometricData con nivel 2 para el usuario
+        List<BiometricData> resultList = biometricDataRepository.findByNivelAndUserIdOrderByTimestampDesc(2, userId);
+
+        // Convertir los registros de BiometricData a BiometricDataResponseDTO
+        List<BiometricDataHistorialDTO> hitorial = resultList.stream().map(biometricData -> {
+            BiometricDataHistorialDTO dto = new BiometricDataHistorialDTO();
+            dto.setMovimiento(biometricData.getMOVIMIENTO());
+            dto.setEcg(biometricData.getECG());
+            dto.setHrv(biometricData.getHRV());
+            dto.setSpO2(biometricData.getSpO2());
+            dto.setNivel(biometricData.getNivel());
+            return dto;
+        }).collect(Collectors.toList());
+
+        return hitorial; // Devuelve los registros mapeados
+    }
+
+
+    @Override
+    @Transactional
+    public Integer getLastNivel(Long userId) {
+        // Obtener el último registro para el userId
+        Optional<BiometricData> lastRecord = biometricDataRepository.findTopByUserIdOrderByTimestampDesc(userId);
+
+        // Si hay un registro y su nivel es 2, lo retornamos
+        if (lastRecord.isPresent() && lastRecord.get().getNivel() == 2) {
+            return lastRecord.get().getNivel();
+        }
+
+        // Si no hay registros o el nivel no es 2, retornamos null o -1 (dependiendo de lo que desees)
+        return null; // o -1 si prefieres indicar que no se encontró un nivel 2
+    }
 }
+
