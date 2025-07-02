@@ -153,8 +153,9 @@ public class BiometricDataController {
                 EmergencyContact contacto = emergencyContactRepository.findByUserId(usuario.getId());
 
                 if (contacto != null) {
-                    String mensaje = "⚠️ Alerta: Se ha detectado un episodio de ansiedad fuerte en el usuario "
+                    String mensaje = "Hola, soy Tampu. Detecté que "
                             + usuario.getUsername() + ".\n"
+                            + "podría estar pasando por un episodio de ansiedad. Este mensaje fue enviado automáticamente para que puedas contactarlo y apoyarlo si lo necesita."+ ".\n"
                             + "Contacto de apoyo: " + contacto.getNombre() + " (" + contacto.getRelacion() + ")";
 
                     // convertimos el Long a String (como lo necesita CallMeBot)
