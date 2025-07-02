@@ -165,4 +165,12 @@ public class UserServiceImplement implements IUserService {
 
         System.out.println("🎉 Registro de usuario completado exitosamente.");
     }
+
+    @Override
+    public EmergencyContact find(Long idUser) {
+
+        EmergencyContact contact = emergencyContactRepository.findByUserId(idUser);
+
+        return contact;
+    }
 }

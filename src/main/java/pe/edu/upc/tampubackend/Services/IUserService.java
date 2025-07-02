@@ -3,6 +3,7 @@ package pe.edu.upc.tampubackend.Services;
 import pe.edu.upc.tampubackend.DTOs.EmergencyContactDTO;
 import pe.edu.upc.tampubackend.DTOs.UserRegisterDTO;
 import pe.edu.upc.tampubackend.DTOs.UsersDTO;
+import pe.edu.upc.tampubackend.Entities.EmergencyContact;
 import pe.edu.upc.tampubackend.Entities.Users;
 
 import java.util.List;
@@ -24,5 +25,6 @@ public interface IUserService {
 
     void registerUser(UserRegisterDTO dto);
 
+    public EmergencyContact find(Long idUser);
 
 }

@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.tampubackend.DTOs.EmergencyContactDTO;
 import pe.edu.upc.tampubackend.DTOs.UserRegisterDTO;
 import pe.edu.upc.tampubackend.DTOs.UsersDTO;
+import pe.edu.upc.tampubackend.Entities.EmergencyContact;
+import pe.edu.upc.tampubackend.Entities.Users;
 import pe.edu.upc.tampubackend.Services.IUserService;
 
 @RestController
@@ -47,5 +49,21 @@ public class UsersController {
         }
     }
 
+    //
+    @GetMapping("/{id}")
+    public ResponseEntity<Users> getUserById(@PathVariable("id") Long id) {
+        Users user = usersService.findById(id);
+        return ResponseEntity.ok(user);
+    }
 
+    @GetMapping("/contact/{id}")
+    public ResponseEntity<EmergencyContact> getEmergencyContact(@PathVariable("id") Long id) {
+        EmergencyContact contact = usersService.find(id); // Llamada al servicio
+
+        if (contact != null) {
+            return ResponseEntity.ok(contact); // Retorna el contacto si existe
+        } else {
+            return ResponseEntity.notFound().build(); // Retorna 404 si no existe el contacto
+        }
+    }
 }

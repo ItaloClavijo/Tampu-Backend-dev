@@ -2,9 +2,12 @@ package pe.edu.upc.tampubackend.Controllers;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.tampubackend.DTOs.BiometricDataDTO;
+import pe.edu.upc.tampubackend.DTOs.BiometricDataHistorialDTO;
 import pe.edu.upc.tampubackend.DTOs.UsersDTO;
+import pe.edu.upc.tampubackend.Entities.BiometricData;
 import pe.edu.upc.tampubackend.Entities.EmergencyContact;
 import pe.edu.upc.tampubackend.Entities.Notification;
 import pe.edu.upc.tampubackend.Repositories.IBiometricDataRepository;
@@ -163,28 +166,29 @@ public class BiometricDataController {
                     System.out.println("❗ Usuario sin contacto de emergencia registrado.");
                 }
 
-//                ✅ Enviar notificación push al usuario
-//                if (usuario.getFirebaseToken() != null) {
-//                    Notification notification = new Notification();
-//                    notification.setRecipientToken(usuario.getFirebaseToken());
-//                    notification.setTitle("🚨 Ansiedad detectada");
-//                    notification.setBody("Hemos detectado un episodio de ansiedad fuerte. Respira profundamente.");
-//                    notification.setImage("https://i.imgur.com/OdL0XPt.png"); // Imagen opcional
-//                    notification.setDate(LocalDateTime.now());
-//                    notification.setUser(usuario);
-//                    notification.setEmergencyContact(contacto); // opcional
-//
-//                    Map<String, String> extraData = new HashMap<>();
-//                    extraData.put("nivel", String.valueOf(resultado.getNivel()));
-//                    extraData.put("user_id", String.valueOf(usuario.getId()));
-//                    notification.setData(extraData);
-//
-//                    notificationService.sendNotiByToken(notification);
-//                } else {
-//                    System.out.println("❗ El usuario no tiene token de Firebase registrado.");
-//                }
+                //✅ Enviar notificación push al usuario
+                if (usuario.getFirebaseToken() != null) {
+                    Notification notification = new Notification();
+                    notification.setRecipientToken(usuario.getFirebaseToken());
+                    notification.setTitle("🚨 Ansiedad detectada");
+                    notification.setBody("Hemos detectado un episodio de ansiedad fuerte. Respira profundamente.");
+                    notification.setImage("https://i.imgur.com/OdL0XPt.png"); // Imagen opcional
+                    notification.setDate(LocalDateTime.now());
+                    notification.setUser(usuario);
+                    notification.setEmergencyContact(contacto); // opcional
+
+                    Map<String, String> extraData = new HashMap<>();
+                    extraData.put("nivel", String.valueOf(resultado.getNivel()));
+                    extraData.put("user_id", String.valueOf(usuario.getId()));
+                    notification.setData(extraData);
+
+                    notificationService.sendNotiByToken(notification);
+                } else {
+                    System.out.println("❗ El usuario no tiene token de Firebase registrado.");
+                }
 
             }
+            data.setNivel(resultado.getNivel());
             biometricDataService.saveWithApiResponse(data, jsonResponse);
             return objectMapper.readValue(jsonResponse, ResultadoPredictDTO.class);
         } catch (Exception e) {
@@ -192,4 +196,25 @@ public class BiometricDataController {
         }
     }
 
+    @GetMapping("/historial/{userId}")
+    public ResponseEntity<List<BiometricDataHistorialDTO>> getBiometricDataNivel2(@PathVariable Long userId) {
+        List<BiometricDataHistorialDTO> biometricDataList = biometricDataService.getBiometricDataNivel2(userId);
+
+        if (biometricDataList.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204 No Content si no hay resultados
+        }
+
+        return ResponseEntity.ok(biometricDataList); // 200 OK con los resultados
+    }
+
+    @GetMapping("/level/{userId}")
+    public ResponseEntity<Integer> getLastNivel(@PathVariable Long userId) {
+        Integer nivel = biometricDataService.getLastNivel(userId);
+
+        if (nivel != null) {
+            return ResponseEntity.ok(nivel); // Devuelve el nivel si es 2
+        } else {
+            return ResponseEntity.noContent().build(); // Devuelve 204 No Content si no es nivel 2 o no se encontró
+        }
+    }
 }

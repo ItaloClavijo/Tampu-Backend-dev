@@ -25,6 +25,8 @@ public class BiometricDataDTO {
 
     private String apiResponse;
 
+    private Integer nivel;
+
     // Getters y Setters
     public Long getUser_id() {
         return user_id;
@@ -80,5 +82,13 @@ public class BiometricDataDTO {
 
     public void setApiResponse(String apiResponse) {
         this.apiResponse = apiResponse;
+    }
+
+    public Integer getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(Integer nivel) {
+        this.nivel = nivel;
     }
 }
