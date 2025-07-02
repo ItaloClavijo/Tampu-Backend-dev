@@ -1,11 +1,18 @@
 package pe.edu.upc.tampubackend.DTOs;
 
+import com.google.firebase.database.DatabaseError;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+
 public class BiometricDataHistorialDTO {
     private Double movimiento;
     private Double ecg;
     private Double hrv;
     private Integer spO2;
     private Integer nivel;
+    private LocalDateTime timestamp;
 
     // Getters y Setters
     public Double getMovimiento() {
@@ -46,5 +53,13 @@ public class BiometricDataHistorialDTO {
 
     public void setNivel(Integer nivel) {
         this.nivel = nivel;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 }

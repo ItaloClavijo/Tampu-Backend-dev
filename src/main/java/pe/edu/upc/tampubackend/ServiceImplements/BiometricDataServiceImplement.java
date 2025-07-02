@@ -61,6 +61,7 @@ public class BiometricDataServiceImplement implements BiometricDataService {
             dto.setHrv(biometricData.getHRV());
             dto.setSpO2(biometricData.getSpO2());
             dto.setNivel(biometricData.getNivel());
+            dto.setTimestamp(biometricData.getTimestamp());
             return dto;
         }).collect(Collectors.toList());
 
