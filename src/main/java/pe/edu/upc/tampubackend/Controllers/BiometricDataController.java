@@ -208,14 +208,14 @@ public class BiometricDataController {
         return ResponseEntity.ok(biometricDataList); // 200 OK con los resultados
     }
 
-    @GetMapping("/level/{userId}")
+    @GetMapping("/Level/{userId}")
     public ResponseEntity<Integer> getLastNivel(@PathVariable Long userId) {
         Integer nivel = biometricDataService.getLastNivel(userId);
 
         if (nivel != null) {
-            return ResponseEntity.ok(nivel); // Devuelve el nivel si es 2
+            return ResponseEntity.ok(nivel); // Devuelve el nivel, sin importar si es 0, 1 o 2
         } else {
-            return ResponseEntity.noContent().build(); // Devuelve 204 No Content si no es nivel 2 o no se encontró
+            return ResponseEntity.noContent().build(); // Devuelve 204 No Content si no se encuentra el nivel
         }
     }
 }

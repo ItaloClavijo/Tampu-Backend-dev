@@ -75,13 +75,14 @@ public class BiometricDataServiceImplement implements BiometricDataService {
         // Obtener el último registro para el userId
         Optional<BiometricData> lastRecord = biometricDataRepository.findTopByUserIdOrderByTimestampDesc(userId);
 
-        // Si hay un registro y su nivel es 2, lo retornamos
-        if (lastRecord.isPresent() && lastRecord.get().getNivel() == 2) {
+        // Si hay un registro, lo retornamos
+        if (lastRecord.isPresent()) {
             return lastRecord.get().getNivel();
         }
 
-        // Si no hay registros o el nivel no es 2, retornamos null o -1 (dependiendo de lo que desees)
-        return null; // o -1 si prefieres indicar que no se encontró un nivel 2
+        // Si no hay registros, retornamos null o -1 (dependiendo de lo que prefieras)
+        return -1; // o null si prefieres indicar que no se encontró un nivel
     }
+
 }
 
