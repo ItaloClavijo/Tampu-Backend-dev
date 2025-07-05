@@ -209,13 +209,16 @@ public class BiometricDataController {
     }
 
     @GetMapping("/Level/{userId}")
-    public ResponseEntity<Integer> getLastNivel(@PathVariable Long userId) {
+    public ResponseEntity<Map<String, Integer>> getLastNivel(@PathVariable Long userId) {
         Integer nivel = biometricDataService.getLastNivel(userId);
 
         if (nivel != null) {
-            return ResponseEntity.ok(nivel); // Devuelve el nivel, sin importar si es 0, 1 o 2
+            Map<String, Integer> response = new HashMap<>();
+            response.put("nivel", nivel);
+            return ResponseEntity.ok(response);  // Devuelve un objeto JSON con el campo "nivel"
         } else {
             return ResponseEntity.noContent().build(); // Devuelve 204 No Content si no se encuentra el nivel
         }
     }
+
 }
