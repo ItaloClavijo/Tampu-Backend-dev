@@ -84,5 +84,13 @@ public class BiometricDataServiceImplement implements BiometricDataService {
         return -1; // o null si prefieres indicar que no se encontró un nivel
     }
 
+    //funcion de prueba
+    public Integer getUltimoNivel(Long userId) {
+        return biometricDataRepository.findTopByUserIdOrderByTimestampDesc(userId)
+                .map(BiometricData::getNivel)
+                .orElse(null);
+    }
+
+
 }
 

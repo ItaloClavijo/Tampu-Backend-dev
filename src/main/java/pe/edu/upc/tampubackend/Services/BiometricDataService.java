@@ -13,4 +13,6 @@ public interface BiometricDataService {
     public List<BiometricDataHistorialDTO> getBiometricDataNivel2(Long userId);
 
     public Integer getLastNivel(Long userId);
+
+    public Integer getUltimoNivel(Long userId);
 }

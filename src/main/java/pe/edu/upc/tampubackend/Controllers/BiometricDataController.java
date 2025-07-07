@@ -221,4 +221,12 @@ public class BiometricDataController {
         }
     }
 
+    //funcion prueba
+    @GetMapping("/nivel/ultimo/{userId}")
+    public ResponseEntity<Integer> getUltimoNivel(@PathVariable Long userId) {
+        Integer nivel = biometricDataService.getUltimoNivel(userId);
+        return ResponseEntity.ok(nivel);
+    }
+
+
 }
