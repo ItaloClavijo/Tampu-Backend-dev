@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.upc.tampubackend.Entities.Users;
 
+import java.util.Optional;
+
 
 @Repository
 public interface IUserRepository extends JpaRepository<Users, Long> {
@@ -15,6 +17,11 @@ public interface IUserRepository extends JpaRepository<Users, Long> {
 
     //BUSCAR POR NOMBRE
     boolean existsByUsername(String username);
+
+    Optional<Users> findByUsernameIgnoreCase(String username);
+    boolean existsByUsernameIgnoreCase(String username);
+    boolean existsByEmail(String email);
+    boolean existsByEmailIgnoreCase(String email);
 
 
     //INSERTAR ROLES

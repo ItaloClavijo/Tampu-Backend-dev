@@ -10,48 +10,66 @@ import org.springframework.stereotype.Service;
 import pe.edu.upc.tampubackend.Entities.Users;
 import pe.edu.upc.tampubackend.Repositories.IUserRepository;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
-
-//Clase 2
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
+
     @Autowired
     private IUserRepository repo;
 
-    /*@Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //Aqui lógica para buscar el usuario en BD
-        //Usuario defecto web:password
-
-        if ("web".equals(username)) {
-            return new User("web", "$2a$12$CTtjF8P3IJVK6pP4w9pTxuldMqQRrfrLbLLIlasdu2K6ii2vWGly2",
-                    new ArrayList<>());
-        } else {
-            throw new UsernameNotFoundException("Usuario no encontrado: " + username);
-        }
-    }*/
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user = repo.findByUsername(username);
+        // Normaliza un poco el input
+        String uname = username == null ? "" : username.trim();
+
+        // Si tu repo ofrece ignore-case, usa esta línea:
+        // Users user = repo.findByUsernameIgnoreCase(uname);
+        // Si no, mantén la existente:
+        Users user = repo.findByUsername(uname);
 
         if (user == null) {
-            throw new UsernameNotFoundException(String.format("User not exists", username));
+            // CP07: esto permitirá al controller responder 404 "Usuario no registrado"
+            throw new UsernameNotFoundException("Usuario no registrado");
         }
 
+        // Construye authorities de forma segura
         List<GrantedAuthority> roles = new ArrayList<>();
+        if (user.getRoles() != null) {
+            user.getRoles().forEach(rol -> {
+                if (rol != null && rol.getRol() != null) {
+                    roles.add(new SimpleGrantedAuthority(rol.getRol()));
+                }
+            });
+        }
 
-        user.getRoles().forEach(rol -> {
-            roles.add(new SimpleGrantedAuthority(rol.getRol()));
-        });
-
-        UserDetails ud = new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getEnabled(), true, true, true, roles);
-
-        return ud;
+        // UserDetails con flags reales
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getUsername())
+                .password(user.getPassword())          // encriptado en DB
+                .authorities(roles)
+                .disabled(!Boolean.TRUE.equals(user.getEnabled())) // si enabled==false, quedará deshabilitado
+                .accountExpired(false)
+                .accountLocked(false)
+                .credentialsExpired(false)
+                .build();
     }
-    public Users getUserByUsername(String username) {
-        return repo.findByUsername(username);
+
+    /**
+     * Útil para el controller: obtiene el Users o lanza UsernameNotFoundException.
+     * Así el controller puede devolver 404 "Usuario no registrado" (CP07).
+     */
+    public Users getUserByUsername(String username) throws UsernameNotFoundException {
+        String uname = username == null ? "" : username.trim();
+
+        // Si tienes ignore-case:
+        // Users user = repo.findByUsernameIgnoreCase(uname);
+        Users user = repo.findByUsername(uname);
+
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuario no registrado");
+        }
+        return user;
     }
 }
