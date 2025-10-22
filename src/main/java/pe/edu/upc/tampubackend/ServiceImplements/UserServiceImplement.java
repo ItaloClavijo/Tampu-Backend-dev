@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.upc.tampubackend.Services.IUserService;
 
-
 import java.util.List;
 
 @Service
 public class UserServiceImplement implements IUserService {
+
     @Autowired
     private IUserRepository uR;
 
@@ -106,7 +106,6 @@ public class UserServiceImplement implements IUserService {
         }
     }
 
-
     @Override
     public void registerUser(UserRegisterDTO dto) {
         System.out.println("📥 Iniciando registro de usuario...");
@@ -172,5 +171,23 @@ public class UserServiceImplement implements IUserService {
         EmergencyContact contact = emergencyContactRepository.findByUserId(idUser);
 
         return contact;
+    }
+
+    // Agregar método para eliminar el perfil de un usuario
+    public boolean eliminarPerfil(Long userId) {
+        try {
+            // Eliminar contacto de emergencia asociado al usuario
+            emergencyContactRepository.deleteByUserId(userId);
+            System.out.println("✅ Contacto de emergencia asociado al usuario " + userId + " eliminado.");
+
+            // Eliminar usuario
+            uR.deleteById(userId);
+            System.out.println("✅ Usuario con ID " + userId + " eliminado correctamente.");
+
+            return true; // Operación exitosa
+        } catch (Exception e) {
+            System.err.println("💥 Error al eliminar el perfil del usuario " + userId + ": " + e.getMessage());
+            return false; // Operación fallida
+        }
     }
 }

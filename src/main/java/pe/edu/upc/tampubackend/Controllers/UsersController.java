@@ -66,4 +66,14 @@ public class UsersController {
             return ResponseEntity.notFound().build(); // Retorna 404 si no existe el contacto
         }
     }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<String> eliminarPerfil(@PathVariable Long userId) {
+        try {
+            usersService.eliminarPerfil(userId);
+            return ResponseEntity.ok("Perfil eliminado correctamente.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al eliminar el perfil.");
+        }
+    }
 }

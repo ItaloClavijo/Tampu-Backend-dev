@@ -27,4 +27,5 @@ public interface IUserService {
 
     public EmergencyContact find(Long idUser);
 
+    boolean eliminarPerfil(Long userId);
 }

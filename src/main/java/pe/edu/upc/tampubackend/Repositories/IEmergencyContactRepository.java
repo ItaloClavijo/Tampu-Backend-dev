@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface IEmergencyContactRepository extends JpaRepository<EmergencyContact,Long> {
     EmergencyContact findByUserId(Long userId);
+
+    void deleteByUserId(Long userId);
 }
