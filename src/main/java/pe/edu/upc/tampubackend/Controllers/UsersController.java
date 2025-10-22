@@ -11,12 +11,13 @@ import pe.edu.upc.tampubackend.Entities.Users;
 import pe.edu.upc.tampubackend.Services.IUserService;
 
 @RestController
-@RequestMapping("/api/users") // opcional pero recomendado
+@RequestMapping("/api/users")
 public class UsersController {
 
     @Autowired
     private IUserService usersService;
 
+    // Registrar usuario
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegisterDTO dto) {
         try {
@@ -32,46 +33,56 @@ public class UsersController {
     public ResponseEntity<String> updateUser(@PathVariable("id") Long id, @RequestBody UsersDTO dto) {
         try {
             usersService.updateUser(id, dto);
-            return ResponseEntity.ok("✅ Usuario actualizado correctamente.");
+            return ResponseEntity.ok("✅ Datos del usuario actualizados correctamente.");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("❌ Error al actualizar usuario: " + e.getMessage());
+            return ResponseEntity.badRequest().body("❌ Error al actualizar datos del usuario: " + e.getMessage());
         }
     }
 
-    // Actualizar contacto por ID de user
+    // Actualizar contacto de emergencia por ID de usuario
     @PutMapping("/updatec/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable("id") Long id, @RequestBody EmergencyContactDTO dto) {
+    public ResponseEntity<String> updateEmergencyContact(@PathVariable("id") Long id, @RequestBody EmergencyContactDTO dto) {
         try {
             usersService.updateConctact(id, dto);
-            return ResponseEntity.ok("✅ Usuario actualizado correctamente.");
+            return ResponseEntity.ok("✅ Contacto de emergencia actualizado correctamente.");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("❌ Error al actualizar usuario: " + e.getMessage());
+            return ResponseEntity.badRequest().body("❌ Error al actualizar contacto de emergencia: " + e.getMessage());
         }
     }
 
-    //
+    // Obtener usuario por ID
     @GetMapping("/{id}")
     public ResponseEntity<Users> getUserById(@PathVariable("id") Long id) {
         Users user = usersService.findById(id);
+        // El service devuelve new Users() si no existe; validamos por ID nulo
+        if (user == null || user.getId() == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(user);
     }
 
+    // Obtener contacto de emergencia por ID de usuario
     @GetMapping("/contact/{id}")
     public ResponseEntity<EmergencyContact> getEmergencyContact(@PathVariable("id") Long id) {
-        EmergencyContact contact = usersService.find(id); // Llamada al servicio
-
+        EmergencyContact contact = usersService.find(id);
         if (contact != null) {
-            return ResponseEntity.ok(contact); // Retorna el contacto si existe
+            return ResponseEntity.ok(contact);
         } else {
-            return ResponseEntity.notFound().build(); // Retorna 404 si no existe el contacto
+            return ResponseEntity.notFound().build();
         }
     }
 
+    // Eliminar perfil (usuario + dependencias)
     @DeleteMapping("/{userId}")
     public ResponseEntity<String> eliminarPerfil(@PathVariable Long userId) {
         try {
-            usersService.eliminarPerfil(userId);
-            return ResponseEntity.ok("Perfil eliminado correctamente.");
+            boolean eliminado = usersService.eliminarPerfil(userId);
+            if (eliminado) {
+                return ResponseEntity.ok("Perfil eliminado correctamente.");
+            } else {
+                // No existe o no se pudo eliminar
+                return ResponseEntity.status(404).body("Usuario no encontrado o no se pudo eliminar.");
+            }
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al eliminar el perfil.");
         }

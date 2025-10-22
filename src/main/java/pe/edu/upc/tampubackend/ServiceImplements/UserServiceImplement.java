@@ -1,6 +1,10 @@
 package pe.edu.upc.tampubackend.ServiceImplements;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
 import pe.edu.upc.tampubackend.DTOs.EmergencyContactDTO;
 import pe.edu.upc.tampubackend.DTOs.UserRegisterDTO;
 import pe.edu.upc.tampubackend.DTOs.UsersDTO;
@@ -8,8 +12,6 @@ import pe.edu.upc.tampubackend.Entities.EmergencyContact;
 import pe.edu.upc.tampubackend.Entities.Users;
 import pe.edu.upc.tampubackend.Repositories.IEmergencyContactRepository;
 import pe.edu.upc.tampubackend.Repositories.IUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import pe.edu.upc.tampubackend.Services.IUserService;
 
 import java.util.List;
@@ -22,6 +24,9 @@ public class UserServiceImplement implements IUserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private IEmergencyContactRepository emergencyContactRepository;
 
     @Override
     public List<Users> list() {
@@ -38,12 +43,10 @@ public class UserServiceImplement implements IUserService {
         return uR.findById(idUsuario).orElse(new Users());
     }
 
-    @Autowired
-    private IEmergencyContactRepository emergencyContactRepository;
-
     @Override
     public void updateUser(Long idUser, UsersDTO dto) {
         Users u = uR.findById(idUser).orElseThrow();
+
         // Validación de username único
         if (!u.getUsername().equals(dto.getUsername())) {
             if (uR.existsByUsername(dto.getUsername())) {
@@ -59,9 +62,8 @@ public class UserServiceImplement implements IUserService {
         u.setSexo(dto.getSexo());
         u.setCarrera(dto.getCarrera());
 
-        Users savedUser;
         try {
-            savedUser = uR.save(u);
+            Users savedUser = uR.save(u);
             System.out.println("✅ Usuario actualizado: " + savedUser.getId());
         } catch (Exception e) {
             System.err.println("💥 Error al actualizar el usuario: " + e.getMessage());
@@ -75,8 +77,8 @@ public class UserServiceImplement implements IUserService {
         // Buscar el usuario
         Users u = uR.findById(idUser).orElseThrow();
 
-        // Buscar el contacto de emergencia existente (si lo hay)
-        EmergencyContact contact = emergencyContactRepository.findByUserId(idUser);
+        // Buscar el contacto de emergencia existente (si lo hay) — usa findByUser_Id
+        EmergencyContact contact = emergencyContactRepository.findByUser_Id(idUser);
 
         if (contact == null) {
             // Si no existe, crea uno nuevo
@@ -88,7 +90,7 @@ public class UserServiceImplement implements IUserService {
         contact.setNombre(dto.getNombre());
 
         String telefono = dto.getTelefono();
-        if (!telefono.startsWith("+51")) {
+        if (telefono != null && !telefono.startsWith("+51")) {
             telefono = "+51" + telefono.replaceAll("^0+", ""); // Quita ceros iniciales si los hubiera
         }
         contact.setTelefono(telefono);
@@ -144,7 +146,7 @@ public class UserServiceImplement implements IUserService {
         contact.setNombre(dto.getContactoNombre());
 
         String telefono = dto.getContactoTelefono();
-        if (!telefono.startsWith("+51")) {
+        if (telefono != null && !telefono.startsWith("+51")) {
             telefono = "+51" + telefono.replaceAll("^0+", ""); // Quita ceros iniciales si los hubiera
         }
         contact.setTelefono(telefono);
@@ -167,27 +169,39 @@ public class UserServiceImplement implements IUserService {
 
     @Override
     public EmergencyContact find(Long idUser) {
-
-        EmergencyContact contact = emergencyContactRepository.findByUserId(idUser);
-
+        // Usa el método alineado al repositorio (findByUser_Id)
+        EmergencyContact contact = emergencyContactRepository.findByUser_Id(idUser);
         return contact;
     }
 
-    // Agregar método para eliminar el perfil de un usuario
+    // ✅ Eliminación robusta: contacto(s) y luego usuario
+    @Override
+    @Transactional
     public boolean eliminarPerfil(Long userId) {
         try {
-            // Eliminar contacto de emergencia asociado al usuario
-            emergencyContactRepository.deleteByUserId(userId);
-            System.out.println("✅ Contacto de emergencia asociado al usuario " + userId + " eliminado.");
+            if (!uR.existsById(userId)) {
+                System.out.println("⚠️ Usuario " + userId + " no existe.");
+                return false;
+            }
 
-            // Eliminar usuario
+            // 1) Eliminar contacto(s) de emergencia asociados
+            emergencyContactRepository.deleteByUserId(userId);
+            System.out.println("✅ Contacto(s) de emergencia del usuario " + userId + " eliminado(s).");
+
+            // 2) Eliminar usuario
             uR.deleteById(userId);
             System.out.println("✅ Usuario con ID " + userId + " eliminado correctamente.");
 
-            return true; // Operación exitosa
+            // 3) Verificar que ya no exista
+            boolean stillExists = uR.existsById(userId);
+            if (stillExists) {
+                System.err.println("❌ El usuario " + userId + " aún existe tras intentar eliminar.");
+            }
+            return !stillExists;
+
         } catch (Exception e) {
             System.err.println("💥 Error al eliminar el perfil del usuario " + userId + ": " + e.getMessage());
-            return false; // Operación fallida
+            return false;
         }
     }
 }
