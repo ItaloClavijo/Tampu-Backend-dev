@@ -4,14 +4,20 @@ import java.io.Serializable;
 
 public class JwtResponse implements Serializable {
     private static final long serialVersionUID = -8091879091924046844L;
+    private final String jwttoken;
+    private final Long userId;
 
-    private final String token;
-
-    public JwtResponse(String token) {
-        this.token = token;
+    public String getJwttoken() {
+        return jwttoken;
+    }
+    public Long getUserId() {
+        return userId;
     }
 
-    public String getToken() {
-        return this.token;
+    public JwtResponse(String jwttoken, Long userId) {
+        super();
+        this.userId = userId;
+        this.jwttoken = jwttoken;
     }
+
 }
