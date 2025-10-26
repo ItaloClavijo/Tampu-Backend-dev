@@ -41,6 +41,7 @@ public class BiometricDataServiceImplement implements BiometricDataService {
                 data.getTimestamp() != null ? data.getTimestamp() : LocalDateTime.now()
         );
         biometricData.setApiResponse(apiResponse);
+        biometricData.setNivel(data.getNivel());
         biometricData.setUser(user);
 
         biometricDataRepository.save(biometricData);
