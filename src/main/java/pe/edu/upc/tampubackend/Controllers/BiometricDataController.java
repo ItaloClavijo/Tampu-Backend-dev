@@ -150,7 +150,7 @@ public class BiometricDataController {
                 System.out.println("🚨 Ansiedad fuerte detectada. Enviando alerta por WhatsApp...");
 
                 Users usuario = usersService.findById(data.getUser_id());
-                EmergencyContact contacto = emergencyContactRepository.findByUserId(usuario.getId());
+                EmergencyContact contacto = emergencyContactRepository.findByUser_Id(usuario.getId());
 
                 if (contacto != null) {
                     String mensaje = "Hola, soy Tampu. Detecté que "

@@ -1,6 +1,10 @@
 package pe.edu.upc.tampubackend.ServiceImplements;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
 import pe.edu.upc.tampubackend.DTOs.EmergencyContactDTO;
 import pe.edu.upc.tampubackend.DTOs.UserRegisterDTO;
 import pe.edu.upc.tampubackend.DTOs.UsersDTO;
@@ -8,20 +12,21 @@ import pe.edu.upc.tampubackend.Entities.EmergencyContact;
 import pe.edu.upc.tampubackend.Entities.Users;
 import pe.edu.upc.tampubackend.Repositories.IEmergencyContactRepository;
 import pe.edu.upc.tampubackend.Repositories.IUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import pe.edu.upc.tampubackend.Services.IUserService;
-
 
 import java.util.List;
 
 @Service
 public class UserServiceImplement implements IUserService {
+
     @Autowired
     private IUserRepository uR;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private IEmergencyContactRepository emergencyContactRepository;
 
     @Override
     public List<Users> list() {
@@ -38,30 +43,32 @@ public class UserServiceImplement implements IUserService {
         return uR.findById(idUsuario).orElse(new Users());
     }
 
-    @Autowired
-    private IEmergencyContactRepository emergencyContactRepository;
-
     @Override
     public void updateUser(Long idUser, UsersDTO dto) {
         Users u = uR.findById(idUser).orElseThrow();
+
         // Validación de username único
-        if (!u.getUsername().equals(dto.getUsername())) {
+        if (dto.getUsername() != null && !u.getUsername().equals(dto.getUsername())) {
             if (uR.existsByUsername(dto.getUsername())) {
                 throw new RuntimeException("El nombre de usuario '" + dto.getUsername() + "' ya está en uso.");
             }
             u.setUsername(dto.getUsername());
         }
 
-        u.setPassword(passwordEncoder.encode(dto.getPassword()));
-        u.setEmail(dto.getEmail());
-        u.setEdad(dto.getEdad());
-        u.setEnabled(true);
-        u.setSexo(dto.getSexo());
-        u.setCarrera(dto.getCarrera());
+        // Solo re-encriptar si viene password no vacío
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            u.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
 
-        Users savedUser;
+        if (dto.getEmail() != null) u.setEmail(dto.getEmail());
+        if (dto.getEdad() != null) u.setEdad(dto.getEdad());
+        // Mantienes enabled en true; si manejas soft delete, podrías no tocarlo aquí
+        u.setEnabled(true);
+        if (dto.getSexo() != null) u.setSexo(dto.getSexo());
+        if (dto.getCarrera() != null) u.setCarrera(dto.getCarrera());
+
         try {
-            savedUser = uR.save(u);
+            Users savedUser = uR.save(u);
             System.out.println("✅ Usuario actualizado: " + savedUser.getId());
         } catch (Exception e) {
             System.err.println("💥 Error al actualizar el usuario: " + e.getMessage());
@@ -76,7 +83,7 @@ public class UserServiceImplement implements IUserService {
         Users u = uR.findById(idUser).orElseThrow();
 
         // Buscar el contacto de emergencia existente (si lo hay)
-        EmergencyContact contact = emergencyContactRepository.findByUserId(idUser);
+        EmergencyContact contact = emergencyContactRepository.findByUser_Id(idUser);
 
         if (contact == null) {
             // Si no existe, crea uno nuevo
@@ -85,15 +92,22 @@ public class UserServiceImplement implements IUserService {
         }
 
         // Actualiza los campos del contacto de emergencia
-        contact.setNombre(dto.getNombre());
+        if (dto.getNombre() != null) contact.setNombre(dto.getNombre());
 
+        // Normalizar teléfono (+51 + dígitos)
         String telefono = dto.getTelefono();
-        if (!telefono.startsWith("+51")) {
-            telefono = "+51" + telefono.replaceAll("^0+", ""); // Quita ceros iniciales si los hubiera
+        if (telefono != null) {
+            telefono = telefono.trim();
+            // dejar solo dígitos
+            String digits = telefono.replaceAll("\\D+", "");
+            if (!digits.startsWith("51")) {
+                digits = "51" + digits.replaceAll("^0+", "");
+            }
+            contact.setTelefono("+" + digits);
         }
-        contact.setTelefono(telefono);
-        contact.setRelacion(dto.getRelacion());
-        contact.setApiKey(dto.getApiKey());
+
+        if (dto.getRelacion() != null) contact.setRelacion(dto.getRelacion());
+        if (dto.getApiKey() != null) contact.setApiKey(dto.getApiKey());
 
         // Guardar o actualizar el contacto
         System.out.println("📤 Guardando o actualizando contacto de emergencia...");
@@ -105,7 +119,6 @@ public class UserServiceImplement implements IUserService {
             throw e;
         }
     }
-
 
     @Override
     public void registerUser(UserRegisterDTO dto) {
@@ -145,10 +158,14 @@ public class UserServiceImplement implements IUserService {
         contact.setNombre(dto.getContactoNombre());
 
         String telefono = dto.getContactoTelefono();
-        if (!telefono.startsWith("+51")) {
-            telefono = "+51" + telefono.replaceAll("^0+", ""); // Quita ceros iniciales si los hubiera
+        if (telefono != null) {
+            telefono = telefono.trim();
+            String digits = telefono.replaceAll("\\D+", "");
+            if (!digits.startsWith("51")) {
+                digits = "51" + digits.replaceAll("^0+", "");
+            }
+            contact.setTelefono("+" + digits);
         }
-        contact.setTelefono(telefono);
 
         contact.setRelacion(dto.getContactoRelacion());
         contact.setUser(savedUser);
@@ -168,9 +185,40 @@ public class UserServiceImplement implements IUserService {
 
     @Override
     public EmergencyContact find(Long idUser) {
+        return emergencyContactRepository.findByUser_Id(idUser);
+    }
 
-        EmergencyContact contact = emergencyContactRepository.findByUserId(idUser);
+    // ✅ Eliminación robusta: contacto(s) y luego usuario
+    @Override
+    @Transactional
+    public boolean eliminarPerfil(Long userId) {
+        try {
+            if (!uR.existsById(userId)) {
+                System.out.println("⚠️ Usuario " + userId + " no existe.");
+                return false;
+            }
 
-        return contact;
+            // 1) Eliminar contacto(s) de emergencia asociados
+            emergencyContactRepository.deleteByUserId(userId);
+            System.out.println("✅ Contacto(s) de emergencia del usuario " + userId + " eliminado(s).");
+
+            // 2) Eliminar usuario
+            uR.deleteById(userId);
+            // 3) Forzar sincronización para detectar FKs pendientes
+            uR.flush();
+
+            // 4) Verificar que ya no exista
+            boolean stillExists = uR.existsById(userId);
+            if (stillExists) {
+                System.err.println("❌ El usuario " + userId + " aún existe tras intentar eliminar.");
+            } else {
+                System.out.println("✅ Usuario " + userId + " eliminado definitivamente.");
+            }
+            return !stillExists;
+
+        } catch (Exception e) {
+            System.err.println("💥 Error al eliminar el perfil del usuario " + userId + ": " + e.getMessage());
+            return false;
+        }
     }
 }

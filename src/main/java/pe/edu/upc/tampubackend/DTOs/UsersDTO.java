@@ -10,11 +10,11 @@ public class UsersDTO {
     private String password;
     private Boolean enabled;
     private String email;
-    private int edad;
+    private Integer edad;
     private String sexo;
     private String carrera;
 
-    public UsersDTO(String username, String password, Boolean enabled, String email, int edad, String sexo, String carrera) {
+    public UsersDTO(String username, String password, Boolean enabled, String email, Integer edad, String sexo, String carrera) {
         this.username = username;
         this.password = password;
         this.enabled = enabled;
@@ -58,11 +58,11 @@ public class UsersDTO {
         this.email = email;
     }
 
-    public int getEdad() {
+    public Integer getEdad() {
         return edad;
     }
 
-    public void setEdad(int edad) {
+    public void setEdad(Integer edad) {
         this.edad = edad;
     }
 

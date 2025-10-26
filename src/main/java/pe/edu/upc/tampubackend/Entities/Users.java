@@ -23,7 +23,7 @@ public class Users implements Serializable {
 
     private String email;
 
-    private int edad;
+    private Integer edad;
 
     private String sexo;
 
@@ -47,7 +47,7 @@ public class Users implements Serializable {
     public Users() {
     }
 
-    public Users(Long id, String username, String password, Boolean enabled, String email, int edad, String sexo, String carrera, List<Role> roles, Long version, List<EmergencyContact> emergencyContacts) {
+    public Users(Long id, String username, String password, Boolean enabled, String email, Integer edad, String sexo, String carrera, List<Role> roles, Long version, List<EmergencyContact> emergencyContacts) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -102,7 +102,7 @@ public class Users implements Serializable {
         this.email = email;
     }
 
-    public int getEdad() {
+    public Integer getEdad() {
         return edad;
     }
 
